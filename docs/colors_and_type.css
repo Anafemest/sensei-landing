@@ -1,0 +1,187 @@
+/* =============================================================
+   Sensei Design System — Foundations
+   Color + Type tokens. Source of truth: sensei-landing/tokens.css
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  /* ── Surfaces ──────────────────────────────────────────────── */
+  --bg:           #f4f7fc;   /* page background — pale lilac-white */
+  --surface:      #ffffff;   /* card / panel default */
+  --surface-2:    #e9eef7;   /* tinted card / inset */
+  --surface-3:    #f9fafd;   /* very faint surface */
+  --surface-dark: #0d1331;   /* dark footer / inverse surface */
+
+  /* ── Ink (text) ────────────────────────────────────────────── */
+  --ink:    #0f1223;        /* primary text on light bg */
+  --ink-2:  #1e2540;        /* secondary headings */
+  --muted:  #5f667f;        /* body/secondary */
+  --faint:  #8a929e;        /* tertiary/captions */
+
+  /* ── Brand: Primary purple scale ──────────────────────────── */
+  --primary:       #6a35f4;  /* signature purple — the hero of the brand */
+  --primary-2:     #8945ff;  /* lighter purple — gradient end */
+  --primary-dark:  #4511a8;  /* deep purple — gradient start, hero bg */
+  --primary-deep:  #060d28;  /* near-black ink, hero bg start */
+  --primary-light: #b78aff;  /* lavender — accents in dark sections */
+
+  /* ── Accent blues ─────────────────────────────────────────── */
+  --accent-blue:  #3158e9;
+  --accent-light: #4e67ff;
+
+  /* ── Semantic ─────────────────────────────────────────────── */
+  --safe:  #0f766e;          /* the only "non-brand" hue: deep teal for success */
+
+  /* ── Borders (purple-tinted, low alpha) ───────────────────── */
+  --border:        rgba(106, 53, 244, 0.12);
+  --border-strong: rgba(106, 53, 244, 0.30);
+  --border-ink:    rgba(15, 18, 35, 0.08);
+
+  /* ── Radii ────────────────────────────────────────────────── */
+  --radius-sm: 14px;   /* buttons, chips, inputs */
+  --radius-md: 20px;   /* small cards, KPI tiles */
+  --radius-lg: 30px;   /* primary cards, service tiles */
+  --radius-xl: 34px;   /* hero panel, dark section blocks */
+  --radius-pill: 999px;
+
+  /* ── Easing ───────────────────────────────────────────────── */
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* ── Shadows (purple-tinted glow) ─────────────────────────── */
+  --shadow-card: 0 12px 40px rgba(106, 53, 244, 0.08);
+  --shadow-form: 0 24px 80px rgba(106, 53, 244, 0.12);
+  --shadow-glow: 0 12px 22px rgba(106, 53, 244, 0.32);
+  --shadow-deep: 0 24px 64px rgba(15, 20, 55, 0.36);
+
+  /* ── Layout shell ─────────────────────────────────────────── */
+  --layout-content-max:      1200px;
+  --layout-content-outer-gap:  24px;
+  --layout-shell-max:        1360px;
+  --layout-shell-outer-gap:    12px;
+  --layout-shell-inner-pad:    14px;
+
+  /* ── Signature gradients ──────────────────────────────────── */
+  --grad-primary:   linear-gradient(120deg, #6a35f4 0%, #8945ff 100%);
+  --grad-button:    linear-gradient(180deg, #7b5cf5 0%, #5b38e8 100%);
+  --grad-text:      linear-gradient(120deg, #6a35f4, #8945ff, #3158e9);
+  --grad-hero-bg:   linear-gradient(125deg, #060d28 10%, #4511a8 47%, #892ef8 84%);
+  --grad-dark-bg:   linear-gradient(180deg, #100739 0%, #19094d 38%, #2f0d89 70%, #4a18c6 100%);
+  --grad-internal:  linear-gradient(130deg, #0a0f31 12%, #4a1cb2 56%, #7c38f2 100%);
+
+  /* ── Type scale ───────────────────────────────────────────── */
+  --font-sans: 'Outfit', ui-sans-serif, -apple-system, BlinkMacSystemFont,
+               'Segoe UI', 'Noto Sans', Arial, sans-serif;
+
+  /* fluid headings (mirror site css) */
+  --fs-h1: clamp(3rem, 6vw, 5.1rem);     /* hero */
+  --fs-h2: clamp(2.4rem, 4.7vw, 4.3rem); /* section */
+  --fs-h3: 1.6rem;                       /* card title */
+  --fs-h4: 1.2rem;
+  --fs-body-lg: 1.15rem;                 /* hero subtitle */
+  --fs-body:    1.05rem;                 /* body */
+  --fs-sm:      0.95rem;                 /* meta */
+  --fs-xs:      0.75rem;                 /* label / chip */
+
+  --lh-tight:  1.02;
+  --lh-snug:   1.3;
+  --lh-normal: 1.6;
+  --lh-loose:  1.75;
+
+  --tracking-tight:  -0.045em;  /* h1 */
+  --tracking-snug:   -0.04em;
+  --tracking-normal: -0.02em;
+  --tracking-wide:    0.07em;   /* eyebrow labels */
+}
+
+/* =============================================================
+   Semantic element styles — use directly or as a reference
+   ============================================================= */
+
+.ds-body,
+body.ds {
+  font-family: var(--font-sans);
+  color: var(--ink);
+  background: var(--surface);
+  font-size: var(--fs-body);
+  line-height: 1.35;
+  -webkit-font-smoothing: antialiased;
+}
+
+.ds h1 {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 0.98;
+  letter-spacing: var(--tracking-tight);
+  color: #fff;
+  margin: 0 0 24px;
+}
+
+.ds h2 {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  line-height: 1.04;
+  letter-spacing: var(--tracking-snug);
+  color: var(--ink);
+  margin: 0 0 20px;
+}
+.ds h2 span { color: var(--primary); }
+
+.ds h3 {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: var(--tracking-normal);
+  color: var(--ink);
+  margin: 0 0 12px;
+}
+
+.ds p {
+  font-size: var(--fs-body);
+  line-height: var(--lh-normal);
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+/* eyebrow label — the gradient-bar device used above every section */
+.ds-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+}
+.ds-label::before {
+  content: '';
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--grad-primary);
+}
+
+/* gradient inline text */
+.ds-grad-text {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* small caps caption */
+.ds-caption {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--faint);
+}
+
+/* monospace tabular numbers */
+.ds-num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
