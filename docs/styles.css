@@ -41,10 +41,9 @@ a { color: inherit; text-decoration: none; }
   content: "";
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(106, 53, 244, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(106, 53, 244, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(106, 53, 244, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(106, 53, 244, 0.05) 1px, transparent 1px);
   background-size: 56px 56px;
-  mask-image: radial-gradient(circle at 50% 0%, #000 25%, transparent 70%);
   pointer-events: none; z-index: 0;
 }
 
@@ -204,15 +203,18 @@ a { color: inherit; text-decoration: none; }
 .hero h1 {
   margin: 0 0 14px;
   font-size: clamp(2.5rem, 5.4vw, 4.6rem);
-  font-weight: 800; line-height: 0.98;
+  font-weight: 800; line-height: 1.3;
   letter-spacing: -0.045em;
   color: var(--ink);
   text-wrap: balance;
 }
 .hero h1 .grad {
+  display: block;
   background: linear-gradient(120deg, #6a35f4 0%, #8945ff 50%, #3158e9 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
+  padding: 0;
+  width: 100%;
 }
 .hero__subline {
   margin: 0 0 22px;
@@ -580,7 +582,7 @@ a { color: inherit; text-decoration: none; }
 
 .section {
   position: relative; z-index: 1;
-  padding: 100px 0;
+  padding: 72px 0;
 }
 .section--alt { background: var(--bg); }
 
@@ -619,6 +621,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* Anatomy diagram: heading flows directly on the page — no backdrop. */
+#anatomy { padding-top: 48px; }
 #anatomy .section__head {
   position: relative;
   isolation: isolate;
@@ -774,19 +777,28 @@ a { color: inherit; text-decoration: none; }
 .xforms-section {
   position: relative;
   z-index: 1;
-  padding: 100px 0 120px;
+  padding: 100px 0 48px;
 }
 
 #xforms .section__head {
-  position: static;
-  transform: none !important;
-  max-width: 1180px;
-  margin: 0 auto 56px;
-  padding: 0;
+  position: sticky;
+  top: 110px;
+  z-index: 5;
   background: transparent;
+  margin-bottom: 32px;
+  /* No transform override here — JS applies translateY when the stack
+     collapses so the heading un-sticks together with the cards. */
+}
+#xforms .section__head {
+  max-width: 1040px;
 }
 #xforms .section__head h2 {
-  text-wrap: balance;
+  text-wrap: pretty;
+}
+/* Wrapper around heading + stack so the heading un-sticks at the same
+   point as the cards (its containing block ends with the stack). */
+.xforms-wrap {
+  display: block;
 }
 
 .xforms-stack {
@@ -799,9 +811,10 @@ a { color: inherit; text-decoration: none; }
 
 .xform {
   position: sticky;
-  top: 110px;                      /* nav 14 + 64 + 32 breathing */
-  /* No baseline transform — JS applies translateY only when a card
-     actually sticks at the top, so the in-flow gap stays a clean 24px. */
+  /* Each card sticks at its own offset below the sticky section heading.
+     --xforms-stack-top is set by JS based on the heading's measured height
+     (falls back to a reasonable default for SSR/initial paint). */
+  top: calc(var(--xforms-stack-top, 360px) + var(--i, 0) * 32px);
   border-radius: 22px;
   padding: 32px 32px 28px;
   background:
@@ -964,17 +977,21 @@ a { color: inherit; text-decoration: none; }
 
 .track-list {
   list-style: none;
-  margin: 0; padding: 0;
-  max-width: 960px;
   margin: 0 auto;
-  border-top: 1px solid var(--border);
+  padding: 0;
+  max-width: 960px;
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
 }
 .track-row {
   display: grid;
   grid-template-columns: 56px minmax(0, 220px) minmax(0, 1fr);
   align-items: baseline;
-  gap: 32px;
-  padding: 24px 12px;
+  gap: 16px;
+  padding: 24px 28px;
   border-bottom: 1px solid var(--border);
   transition: background .25s ease;
 }
@@ -1011,29 +1028,40 @@ a { color: inherit; text-decoration: none; }
   .track-row__desc { grid-column: 2; }
 }
 
-/* ── How it works horizontal flow ──────────────────────────── */
+/* ── How it works — sticky scroll section ───────────────────── */
 
-.flow-sticky {
-  position: relative;
+/* Outer section: padding-bottom set via JS to create scroll budget */
+.flow-outer-section {
+  padding: 0;
 }
 
-.flow-sticky.is-sticky {
+/* Sticky frame: becomes fixed while user scrolls through the budget */
+.flow-sticky-frame {
+  background: transparent;
+  padding: 80px 0 60px;
+}
+.flow-sticky-frame.is-stuck {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   z-index: 50;
-  background: linear-gradient(160deg, #f8f7ff 0%, #fefdfb 100%);
-  padding: 24px 0;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 24px rgba(106, 53, 244, 0.06);
 }
 
-.flow-sticky.is-sticky .section__head {
-  margin-bottom: 24px;
+/* Security blocks that sit below the flow frame */
+.flow-security {
+  background: transparent;
+  padding: 60px 0 80px;
+  z-index: 49; /* just below the flow frame (z-index 50) */
 }
 
-.flow-sticky.is-sticky .section__head h2 {
-  font-size: 1.8rem;
+/* Smooth lighting transition on cards */
+.flow__step .flow__body,
+.flow__step .flow__dot {
+  transition: opacity 0.4s ease, box-shadow 0.4s ease,
+              background 0.4s ease, border-color 0.4s ease,
+              transform 0.3s ease;
 }
 
 .flow {
@@ -1709,7 +1737,7 @@ body.modal-open > div#app > div.page > section#industries {
 /* ── Closed-perimeter guarantees — three pillars under the flow ─── */
 
 .perimeter {
-  margin-top: 72px;
+  margin-top: 0;
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
   gap: 48px;
@@ -1749,8 +1777,9 @@ body.modal-open > div#app > div.page > section#industries {
   display: grid; gap: 8px;
   padding: 22px 22px 24px;
   border-radius: 16px;
-  background: var(--surface-1);
+  background: #fff;
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
   transition: all .3s var(--ease-out-expo);
 }
 .perimeter__card:hover {
@@ -1917,6 +1946,54 @@ body.modal-open > div#app > div.page > section#industries {
   color: var(--muted);
 }
 
+/* ── FAQ CTA ────────────────────────────────────────────────── */
+.faq-cta {
+  width: min(700px, 100%);
+  margin: 32px auto 0;
+  padding: 36px 40px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, rgba(106,53,244,0.06) 0%, rgba(106,53,244,0.02) 100%);
+  border: 1px solid rgba(106,53,244,0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.faq-cta__label {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+}
+.faq-cta__sub {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--muted);
+  max-width: 480px;
+}
+.faq-cta__btn {
+  margin-top: 8px;
+  padding: 14px 32px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-2) 100%);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(106,53,244,0.30);
+  transition: transform .2s var(--ease-out-expo), box-shadow .2s ease, opacity .2s ease;
+}
+.faq-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(106,53,244,0.40);
+}
+.faq-cta__btn:active { transform: translateY(0); opacity: .88; }
+
 /* ── Team grid ─────────────────────────────────────────────── */
 
 .team-grid {
@@ -1947,14 +2024,18 @@ body.modal-open > div#app > div.page > section#industries {
     linear-gradient(160deg, rgba(106, 53, 244, 0.10), rgba(47, 98, 240, 0.04));
   overflow: hidden;
   display: grid; place-items: center;
+  transform: translateZ(0); /* own GPU layer — prevents subpixel gap on overflow: hidden */
+  will-change: transform;
 }
 .team-card__photo img {
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
+  backface-visibility: hidden;
+  transform: scale(1.005); /* tiny base overlap so edges never leave the container */
   transition: transform .5s var(--ease-out-expo);
 }
-.team-card:hover .team-card__photo img { transform: scale(1.03); }
+.team-card:hover .team-card__photo img { transform: scale(1.04); }
 .team-card__photo--fallback {
   font-size: 56px;
   font-weight: 900;
