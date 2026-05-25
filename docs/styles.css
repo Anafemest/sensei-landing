@@ -4,7 +4,7 @@
    Terminal, footer and CTA shell stay dark for contrast/drama.
    ============================================================= */
 
-@import url("./colors_and_type.css");
+@import url("../colors_and_type.css");
 
 * { box-sizing: border-box; }
 html, body { margin: 0; max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
@@ -99,6 +99,9 @@ a { color: inherit; text-decoration: none; }
   transition: color .2s;
 }
 .nav__links a:hover { color: var(--ink); }
+.nav__links a.is-active {
+  color: var(--primary);
+}
 .nav__pill {
   display: inline-flex; align-items: center; gap: 6px;
   background: rgba(106,53,244,0.10); color: var(--primary-dark);
@@ -125,6 +128,25 @@ a { color: inherit; text-decoration: none; }
   transition: transform .25s, box-shadow .25s;
 }
 .nav__cta:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(106, 53, 244, 0.45); }
+
+/* ── Nav contact icons ──────────────────────────────────────────── */
+
+.nav__contacts {
+  display: flex; gap: 12px; align-items: center;
+}
+.nav__contact-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  background: rgba(106, 53, 244, 0.08);
+  color: var(--muted);
+  transition: all .2s;
+  text-decoration: none;
+}
+.nav__contact-icon:hover {
+  background: rgba(106, 53, 244, 0.15);
+  color: var(--primary);
+}
 
 /* ── Hero ──────────────────────────────────────────────────── */
 
@@ -180,7 +202,7 @@ a { color: inherit; text-decoration: none; }
   border-radius: 2px;
 }
 .hero h1 {
-  margin: 0 0 22px;
+  margin: 0 0 14px;
   font-size: clamp(2.5rem, 5.4vw, 4.6rem);
   font-weight: 800; line-height: 0.98;
   letter-spacing: -0.045em;
@@ -191,6 +213,13 @@ a { color: inherit; text-decoration: none; }
   background: linear-gradient(120deg, #6a35f4 0%, #8945ff 50%, #3158e9 100%);
   -webkit-background-clip: text; background-clip: text;
   -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero__subline {
+  margin: 0 0 22px;
+  font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--muted);
 }
 .hero__lead {
   margin: 0 0 28px;
@@ -293,11 +322,37 @@ a { color: inherit; text-decoration: none; }
   display: grid; gap: 14px;
   font-size: 13.5px;
   line-height: 1.55;
-  /* Fixed height — chosen to fit the fully-revealed answer state
-     so the terminal box never resizes as content streams in. */
-  min-height: 420px;
+  /* Min height — sized to the tallest scenario (5 statuses + bullet list)
+     so the box doesn't jump between cases, but no empty padding below. */
+  min-height: 470px;
   grid-auto-rows: min-content;
   align-content: start;
+}
+
+/* Role strip — shows which Sensei agent is active + progress dots */
+.terminal__role {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  background: rgba(106, 53, 244, 0.06);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: rgba(255,255,255,0.85);
+}
+.terminal__role svg { flex: 0 0 auto; }
+.terminal__role > span:nth-child(2) { flex: 1; }
+.terminal__progress {
+  display: inline-flex; gap: 5px; align-items: center;
+}
+.tp__dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,0.18);
+  transition: background 0.4s ease, width 0.4s ease;
+}
+.tp__dot--on {
+  background: linear-gradient(120deg, #8945ff, #3158e9);
+  width: 18px; border-radius: 4px;
 }
 
 .msg { display: grid; grid-template-columns: 36px 1fr; gap: 12px; align-items: start; }
@@ -389,6 +444,34 @@ a { color: inherit; text-decoration: none; }
 .task-card__row span:last-child { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
 .task-card__row .ok { color: #58e3a3; }
 .task-card__row .bad { color: #ff7a7a; }
+.task-card__row .accent-v { color: #b78aff; }
+
+/* Bullet-list variant of the result card */
+.task-card__bullets {
+  display: grid; gap: 7px;
+  margin-top: 2px;
+}
+.task-card__bullet {
+  display: grid; grid-template-columns: 14px 1fr; gap: 8px;
+  align-items: start;
+  font-size: 12.5px;
+  color: rgba(255,255,255,0.82);
+  line-height: 1.5;
+}
+.task-card__dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  background: linear-gradient(120deg, #8945ff, #3158e9);
+  margin-top: 7px;
+}
+.task-card__note {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,0.10);
+  font-size: 12px;
+  color: rgba(255,255,255,0.62);
+  font-style: italic;
+  line-height: 1.5;
+}
 
 .thinking {
   display: inline-flex; align-items: center; gap: 6px;
@@ -620,6 +703,21 @@ a { color: inherit; text-decoration: none; }
   content: ''; width: 6px; height: 6px; border-radius: 50%;
   background: var(--safe); box-shadow: 0 0 6px var(--safe);
 }
+/* Brand variant — replaces the status dot with a coloured icon tile */
+.anatomy__node--brand::before { display: none; }
+.anatomy__node-icon {
+  width: 22px; height: 22px;
+  border-radius: 6px;
+  display: grid; place-items: center;
+  font-size: 13px; font-weight: 800;
+  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.4) inset,
+    0 4px 10px rgba(15, 20, 55, 0.18);
+  flex-shrink: 0;
+}
+.anatomy__node-icon svg { display: block; }
 .anatomy__perimeter-label {
   position: absolute;
   top: 50%; right: -6px;
@@ -662,34 +760,48 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Transformations grid ──────────────────────────────────── */
 
-.xforms {
+/* ── Transformations: 24px-gap column that collapses into a peek-stack.
+   Every card is sticky at the SAME `top` (110px), so when they all hit
+   their sticky position they end up at one place. `transform: translateY`
+   gives each a visual peek of 32px below the previous. DOM order matters:
+   later cards render on top by default, which is what we want — every
+   earlier card peeks ABOVE the next one's top edge.
+
+   Because all cards share the same sticky top, they ALL detach at the
+   exact same scroll position (when section bottom rises past 110 + cardH).
+   Stack leaves as a single block — no "leaping" out of sequence. */
+
+.xforms-section {
+  position: relative;
+  z-index: 1;
+  padding: 100px 0 120px;
+}
+
+#xforms .section__head {
+  position: static;
+  transform: none !important;
+  max-width: 1180px;
+  margin: 0 auto 56px;
+  padding: 0;
+  background: transparent;
+}
+#xforms .section__head h2 {
+  text-wrap: balance;
+}
+
+.xforms-stack {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 24px;                       /* normal column rhythm before collapse */
   width: min(700px, 100%);
   margin: 0 auto;
 }
 
-/* Sticky heading: stays pinned while the cards stack underneath it.
-   Once the last card has stacked, JS translates the heading up in lockstep
-   with scroll so it appears to scroll naturally with the page (cards stay
-   stuck; heading moves away). */
-#xforms .section__head {
-  position: sticky;
-  /* 14 (nav top) + 64 (nav height) + 18 breathing room */
-  top: 96px;
-  z-index: 5;
-  margin: 0 auto 56px;
-  padding: 0;
-  background: transparent;
-  will-change: transform;
-}
 .xform {
   position: sticky;
-  /* Each card sticks 14px lower than the one above so previous numbers
-     remain visible as a small peeking edge once stacked. Tops sit below
-     the sticky section heading with a clear breathing gap. */
-  top: calc(360px + var(--i, 0) * 14px);
+  top: 110px;                      /* nav 14 + 64 + 32 breathing */
+  /* No baseline transform — JS applies translateY only when a card
+     actually sticks at the top, so the in-flow gap stays a clean 24px. */
   border-radius: 22px;
   padding: 32px 32px 28px;
   background:
@@ -697,7 +809,7 @@ a { color: inherit; text-decoration: none; }
     linear-gradient(160deg, #ffffff 0%, #fbfaff 100%);
   border: 1px solid var(--border);
   box-shadow: var(--shadow-card);
-  transition: transform 0.4s var(--ease-out-expo), box-shadow 0.4s var(--ease-out-expo);
+  transition: box-shadow 0.4s var(--ease-out-expo);
 }
 .xform:hover {
   box-shadow: 0 24px 56px rgba(106, 53, 244, 0.18);
@@ -749,6 +861,103 @@ a { color: inherit; text-decoration: none; }
 .kpi__arrow {
   color: var(--primary); font-size: 36px; font-weight: 800;
   line-height: 1;
+}
+
+/* ── Custom task card — 5th card for user input ─── */
+
+.xform--custom {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.xform__textarea {
+  flex: 1;
+  min-height: 100px;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ink);
+  resize: vertical;
+  transition: border-color .2s var(--ease-out-expo);
+}
+.xform__textarea:focus {
+  outline: none;
+  border-color: rgba(106, 53, 244, 0.5);
+  box-shadow: 0 0 0 3px rgba(106, 53, 244, 0.08);
+}
+.xform__submit {
+  align-self: flex-start;
+  padding: 12px 24px;
+  border-radius: 10px;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: all .3s var(--ease-out-expo);
+}
+.xform__submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(106, 53, 244, 0.3);
+}
+.xform__submit:active {
+  transform: translateY(0);
+}
+
+/* ── Transformations section CTA ──────────────────────────────── */
+
+.xforms-cta {
+  margin-top: 32px;
+  text-align: center;
+}
+.xforms-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all .3s var(--ease-out-expo);
+}
+.xforms-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(106, 53, 244, 0.28);
+}
+.xforms-cta__btn:active {
+  transform: translateY(0);
+}
+
+/* ── Tracks section CTA ──────────────────────────────────────── */
+
+.tracks-cta {
+  margin-top: 40px;
+  text-align: center;
+}
+.tracks-cta__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 36px;
+  border-radius: 12px;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+  transition: all .3s var(--ease-out-expo);
+}
+.tracks-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(106, 53, 244, 0.28);
+}
+.tracks-cta__btn:active {
+  transform: translateY(0);
 }
 
 /* ── Tracks — clean list of automation areas ───────────────── */
@@ -803,6 +1012,29 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── How it works horizontal flow ──────────────────────────── */
+
+.flow-sticky {
+  position: relative;
+}
+
+.flow-sticky.is-sticky {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: linear-gradient(160deg, #f8f7ff 0%, #fefdfb 100%);
+  padding: 24px 0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.flow-sticky.is-sticky .section__head {
+  margin-bottom: 24px;
+}
+
+.flow-sticky.is-sticky .section__head h2 {
+  font-size: 1.8rem;
+}
 
 .flow {
   position: relative;
@@ -1020,6 +1252,16 @@ a { color: inherit; text-decoration: none; }
 }
 
 /* ── Case modal overlay ────────────────────────────────────── */
+
+body.modal-open > div#app > div.page > section:not(#industries) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.modal-open > div#app > div.page > section#industries {
+  position: relative;
+  z-index: 100;
+}
 
 .case-modal {
   position: fixed; inset: 0; z-index: 200;
@@ -1453,6 +1695,82 @@ a { color: inherit; text-decoration: none; }
   margin: 0;
   font-size: 0.92rem; line-height: 1.65;
   color: var(--muted);
+}
+
+#tracks .section__head { max-width: none; }
+#tracks .section__head h2 {
+  /* Keep the question on one line — even on narrower viewports it
+     scales down rather than wrapping. */
+  white-space: nowrap;
+  text-wrap: nowrap;
+  font-size: clamp(1.6rem, 3.4vw, 2.8rem);
+}
+
+/* ── Closed-perimeter guarantees — three pillars under the flow ─── */
+
+.perimeter {
+  margin-top: 72px;
+  display: grid;
+  grid-template-columns: minmax(280px, 360px) 1fr;
+  gap: 48px;
+  align-items: start;
+}
+.perimeter__head { display: grid; gap: 14px; }
+.perimeter__eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.12em;
+  color: var(--primary);
+}
+.perimeter__eyebrow::before {
+  content: ''; width: 24px; height: 2px;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  border-radius: 2px;
+}
+.perimeter__title {
+  margin: 0;
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 700; line-height: 1.18; letter-spacing: -0.02em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.perimeter__title em {
+  font-style: normal;
+  background: linear-gradient(120deg, var(--primary), var(--primary-2));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.perimeter__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+.perimeter__card {
+  display: grid; gap: 8px;
+  padding: 22px 22px 24px;
+  border-radius: 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  transition: all .3s var(--ease-out-expo);
+}
+.perimeter__card:hover {
+  border-color: rgba(106, 53, 244, 0.26);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+}
+.perimeter__label {
+  font-size: 14px; font-weight: 800;
+  color: var(--primary); letter-spacing: -0.01em;
+}
+.perimeter__desc {
+  margin: 0;
+  font-size: 13px; line-height: 1.5;
+  color: var(--muted);
+}
+
+@media (max-width: 900px) {
+  .perimeter { grid-template-columns: 1fr; gap: 28px; }
+  .perimeter__grid { grid-template-columns: 1fr; }
 }
 
 /* ── Compliance / standards strip ──────────────────────────── */
@@ -1967,6 +2285,38 @@ a { color: inherit; text-decoration: none; }
   color: rgba(255,255,255,0.55); transition: color .2s;
 }
 .footer__col a:hover { color: #fff; }
+
+/* ── Footer contacts — special styling ──────────────────────────── */
+
+.footer__contact-group {
+  margin-top: 12px;
+}
+
+.footer__contact-label {
+  font-size: 13px;
+  color: rgba(255,255,255,0.55);
+  padding: 4px 0;
+  margin: 0;
+  transition: color .2s;
+}
+
+.footer__contact-link {
+  display: block;
+  font-size: 13px;
+  padding: 4px 0;
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+.footer__contact-link:hover {
+  color: var(--primary-2);
+}
+
+.footer__contact-link--secondary {
+  padding-left: 24px;
+}
 .footer__bottom {
   border-top: 1px solid rgba(255,255,255,0.08);
   padding-top: 20px;
@@ -1978,7 +2328,7 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 1080px) {
   .hero__grid { grid-template-columns: 1fr; gap: 36px; }
-  .terminal__body { min-height: 320px; }
+  .terminal__body { min-height: 420px; }
   .xforms { grid-template-columns: 1fr; }
   .flow { grid-template-columns: 1fr 1fr; }
   .flow::before { display: none; }

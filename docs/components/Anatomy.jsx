@@ -1,17 +1,34 @@
 // Anatomy section — the perimeter diagram with Sensei at the core
 // and connected systems orbiting around. The whole thing renders with CSS positions.
 
+// Tiny paper-plane glyph used for Telegram — iconic enough on its own.
+function PaperPlane() {
+  return (
+    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+      <path d="M21 3 2 11l7 2 2 7 4-5 5 4 1-16Z" fill="#fff" />
+    </svg>
+  );
+}
+
 function Anatomy() {
-  // node label, distance ratio (0=center, 1=perimeter), angle in degrees
+  // Inner ring — generic internal system categories.
+  // Outer ring — recognizable everyday tools, each rendered with a
+  // brand-coloured tile so they're scannable at a glance.
+  // node = { label, ratio (0=center, 1=perimeter), angle in deg, brand? }
   const nodes = [
-    ["CRM",      0.46, 200],
-    ["OSS/BSS",  0.46,  20],
-    ["NMS",      0.46, 290],
-    ["NetBox",   0.46, 110],
-    ["Биллинг",  0.78, 245],
-    ["Тикет-система", 0.78, 65],
-    ["Мессенджер",    0.78, 155],
-    ["Сервис-деск",   0.78, 335],
+    { label: "CRM",      ratio: 0.46, angle: 200 },
+    { label: "OSS/BSS",  ratio: 0.46, angle:  20 },
+    { label: "NMS",      ratio: 0.46, angle: 290 },
+    { label: "NetBox",   ratio: 0.46, angle: 110 },
+
+    { label: "Jira",     ratio: 0.78, angle:  65,
+      brand: { bg: "#2684FF", fg: "#fff", glyph: "J" } },
+    { label: "Telegram", ratio: 0.78, angle: 155,
+      brand: { bg: "#26A5E4", fg: "#fff", glyph: <PaperPlane /> } },
+    { label: "Trello",   ratio: 0.78, angle: 245,
+      brand: { bg: "#0052CC", fg: "#fff", glyph: "T" } },
+    { label: "Miro",     ratio: 0.78, angle: 335,
+      brand: { bg: "#FFD02F", fg: "#050038", glyph: "M" } },
   ];
 
   // The diagram is rendered inside a 720×720 conceptual box.
@@ -51,20 +68,28 @@ function Anatomy() {
             { ratio: 0.78, mod: "outer" },
           ].map(({ ratio, mod }) => (
             <div key={mod} className={`anatomy__orbit anatomy__orbit--${mod}`}>
-              {nodes.filter(n => n[1] === ratio).map(([label, _, deg]) => {
-                const rad = (deg * Math.PI) / 180;
+              {nodes.filter(n => n.ratio === ratio).map(({ label, angle, brand }) => {
+                const rad = (angle * Math.PI) / 180;
                 const r = ratio * center;
                 const x = r * Math.cos(rad);
                 const y = r * Math.sin(rad);
                 return (
                   <div
                     key={label}
-                    className="anatomy__node"
+                    className={`anatomy__node${brand ? " anatomy__node--brand" : ""}`}
                     style={{
                       left: `calc(50% + ${x}px)`,
                       top:  `calc(50% + ${y}px)`,
                     }}
                   >
+                    {brand && (
+                      <span
+                        className="anatomy__node-icon"
+                        style={{ background: brand.bg, color: brand.fg }}
+                      >
+                        {brand.glyph}
+                      </span>
+                    )}
                     <span className="anatomy__node-label">{label}</span>
                   </div>
                 );

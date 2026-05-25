@@ -15,11 +15,11 @@ const TRACKS = [
 
 function Tracks() {
   return (
-    <section className="section">
+    <section className="section" id="tracks">
       <div className="container">
         <div className="section__head">
           <span className="section__eyebrow">Направления автоматизации</span>
-          <h2>Где работает <em>Sensei</em></h2>
+          <h2>Какие задачи забирает на себя <em>Sensei</em></h2>
         </div>
         <ul className="track-list">
           {TRACKS.map(t => (
@@ -30,6 +30,9 @@ function Tracks() {
             </li>
           ))}
         </ul>
+        <div className="tracks-cta">
+          <a href="#form" className="tracks-cta__btn">Обсудить проект</a>
+        </div>
       </div>
     </section>
   );

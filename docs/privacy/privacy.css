@@ -79,9 +79,27 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(106, 53, 244, 0.3) transparent;
 }
-.privacy__toc::-webkit-scrollbar { width: 6px; }
+.privacy__toc::-webkit-scrollbar { 
+  width: 6px; 
+}
+.privacy__toc::-webkit-scrollbar-track { 
+  background: transparent; 
+}
 .privacy__toc::-webkit-scrollbar-thumb {
-  background: rgba(106, 53, 244, 0.25); border-radius: 3px;
+  background: rgba(106, 53, 244, 0.25); 
+  border-radius: 3px;
+}
+/* Aggressive approach: set button dimensions to 0 */
+.privacy__toc::-webkit-scrollbar-button:start:decrement,
+.privacy__toc::-webkit-scrollbar-button:end:increment {
+  display: block;
+  background: transparent;
+  height: 0;
+  width: 0;
+}
+.privacy__toc::-webkit-scrollbar-button {
+  height: 0 !important;
+  width: 0 !important;
 }
 .privacy__toc-title {
   display: inline-flex; align-items: center; gap: 10px;

@@ -92,7 +92,7 @@ function Team() {
       <div className="container">
         <div className="section__head">
           <span className="section__eyebrow">Команда</span>
-          <h2><em>30+ экспертов</em> по AI</h2>
+          <h2><em>34 эксперта</em> по AI</h2>
           <p className="section__sub">
             Экспертиза специалистов ICEROCK в области искусственного интеллекта
             играет ключевую роль в создании инновационных решений.

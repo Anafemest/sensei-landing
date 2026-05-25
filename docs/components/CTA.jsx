@@ -2,6 +2,48 @@
 
 function CTA() {
   const [sent, setSent] = React.useState(false);
+  const [phone, setPhone] = React.useState("");
+
+  const handlePhoneChange = (e) => {
+    let value = e.target.value;
+    
+    // Remove all non-digit characters except + at the start
+    const digitsOnly = value.replace(/\D/g, '');
+    
+    if (!digitsOnly) {
+      setPhone("");
+      return;
+    }
+    
+    // If user started with 8, replace with 7 (for Russian numbers)
+    let normalizedDigits = digitsOnly;
+    if (digitsOnly.startsWith('8')) {
+      normalizedDigits = '7' + digitsOnly.slice(1);
+    } else if (digitsOnly.startsWith('7')) {
+      normalizedDigits = digitsOnly;
+    } else {
+      // User typing just digits (9XXXXXXXXXX) - prepend 7
+      normalizedDigits = '7' + digitsOnly;
+    }
+    
+    // Format: +7 (XXX) XXX-XX-XX
+    let formatted = '+' + normalizedDigits;
+    if (normalizedDigits.length >= 2) {
+      formatted = '+' + normalizedDigits.slice(0, 1) + ' (' + normalizedDigits.slice(1, 4);
+    }
+    if (normalizedDigits.length >= 5) {
+      formatted += ') ' + normalizedDigits.slice(4, 7);
+    }
+    if (normalizedDigits.length >= 8) {
+      formatted += '-' + normalizedDigits.slice(7, 9);
+    }
+    if (normalizedDigits.length >= 10) {
+      formatted += '-' + normalizedDigits.slice(9, 11);
+    }
+    
+    setPhone(formatted);
+  };
+
   return (
     <section className="cta" id="form">
       <div className="container">
@@ -36,7 +78,13 @@ function CTA() {
                 <label><span>Email</span>
                   <input required type="email" placeholder="work@company.com" /></label>
                 <label><span>Телефон</span>
-                  <input required type="tel" placeholder="+7 (___) ___-__-__" /></label>
+                  <input 
+                    required 
+                    type="tel" 
+                    placeholder="+7 (___) ___-__-__" 
+                    value={phone}
+                    onChange={handlePhoneChange}
+                  /></label>
                 <p className="form-panel__promise">
                   Позвоним в течение часа, подготовим сценарий под ваш процесс.
                 </p>
@@ -93,13 +141,21 @@ function Footer() {
             <a href="privacy/index.html">Политика конфиденциальности</a>
           </div>
           <div className="footer__col">
-            <p className="footer__title">Контакт</p>
+            <p className="footer__title">Контакты</p>
             <a href="#form">Связаться через форму</a>
+            <div className="footer__contact-group">
+              <p className="footer__contact-label">Написать нам</p>
+              <a href="mailto:hello@sensei.works" className="footer__contact-link">hello@sensei.works</a>
+            </div>
+            <div className="footer__contact-group">
+              <p className="footer__contact-label">Позвонить нам</p>
+              <a href="tel:+79139072017" className="footer__contact-link">+7 (913) 907 2017</a>
+              <a href="tel:+79266298201" className="footer__contact-link footer__contact-link--secondary">+7 (926) 629 8201</a>
+            </div>
           </div>
         </div>
         <div className="footer__bottom">
           <span>© {new Date().getFullYear()} Sensei. Все права защищены.</span>
-          <span>Разработано в России</span>
         </div>
       </div>
     </footer>

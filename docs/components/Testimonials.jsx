@@ -157,7 +157,7 @@ function Testimonials() {
       <div className="container">
         <div className="section__head">
           <span className="section__eyebrow">Отзывы клиентов</span>
-          <h2>Что говорят <em>после пилота</em></h2>
+          <h2>Что говорят после внедрения <em>ИИ-агента Sensei</em></h2>
           <p className="section__sub">
             Истории от телеком-операторов, которые внедрили Sensei в свои
             процессы — от техпроверок до абонентского сервиса.
