@@ -3,7 +3,7 @@
 
 .privacy {
   position: relative; z-index: 1;
-  padding: 120px 0 80px;
+  padding: 24px 0 80px;
 }
 
 .privacy__back {
@@ -43,7 +43,6 @@
   font-weight: 800;
   margin: 0 0 18px;
   color: var(--ink);
-  max-width: 18ch;
   text-wrap: balance;
 }
 
@@ -52,7 +51,6 @@
   font-size: 1.1rem;
   line-height: 1.55;
   color: var(--muted);
-  max-width: 60ch;
 }
 
 /* Two-column layout: sticky TOC sidebar + body content. */
@@ -66,41 +64,52 @@
 /* Sidebar TOC — sticky, vertical list */
 .privacy__toc {
   position: sticky;
-  /* nav 14+64 + breathing room */
   top: 96px;
   border: 1px solid var(--border);
   border-radius: 22px;
-  background:
-    linear-gradient(160deg, #ffffff 0%, #fbfaff 100%);
+  background: linear-gradient(160deg, #ffffff 0%, #fbfaff 100%);
   box-shadow: var(--shadow-card);
   padding: 24px 18px 24px;
   max-height: calc(100vh - 120px);
+  overflow: hidden; /* клип — скролл только внутри .privacy__toc-scroll */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Скроллируемый контейнер без нативного скроллбара */
+.privacy__toc-scroll {
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(106, 53, 244, 0.3) transparent;
+  flex: 1;
+  min-height: 0;
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge */
 }
-.privacy__toc::-webkit-scrollbar { 
-  width: 6px; 
+.privacy__toc-scroll::-webkit-scrollbar { display: none; }
+
+/* Кастомный трек */
+.privacy__toc-track {
+  position: absolute;
+  right: 8px;
+  top: 60px;
+  bottom: 12px;
+  width: 4px;
+  background: rgba(106, 53, 244, 0.08);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity .2s;
 }
-.privacy__toc::-webkit-scrollbar-track { 
-  background: transparent; 
+.privacy__toc:hover .privacy__toc-track { opacity: 1; }
+
+/* Кастомный ползунок */
+.privacy__toc-thumb {
+  position: absolute;
+  left: 0; right: 0;
+  background: rgba(106, 53, 244, 0.35);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background .2s;
 }
-.privacy__toc::-webkit-scrollbar-thumb {
-  background: rgba(106, 53, 244, 0.25); 
-  border-radius: 3px;
-}
-/* Aggressive approach: set button dimensions to 0 */
-.privacy__toc::-webkit-scrollbar-button:start:decrement,
-.privacy__toc::-webkit-scrollbar-button:end:increment {
-  display: block;
-  background: transparent;
-  height: 0;
-  width: 0;
-}
-.privacy__toc::-webkit-scrollbar-button {
-  height: 0 !important;
-  width: 0 !important;
-}
+.privacy__toc-thumb:hover { background: rgba(106, 53, 244, 0.6); }
 .privacy__toc-title {
   display: inline-flex; align-items: center; gap: 10px;
   margin: 4px 14px 18px;

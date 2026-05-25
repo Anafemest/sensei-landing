@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Sensei — перенаправление</title>
+  <!-- Мгновенный редирект на главную для устаревших URL /industries/ -->
+  <meta http-equiv="refresh" content="0; url=/">
+  <link rel="canonical" href="/">
+  <script>
+    // Определяем, есть ли хэш, который нужно перенести
+    (function () {
+      var hash = window.location.hash;
+      var hashMap = { '#industries': '#case-studies', '#form': '#form' };
+      var target = '/';
+      if (hash && hashMap[hash]) {
+        target = '/' + hashMap[hash];
+      }
+      window.location.replace(target);
+    })();
+  </script>
+</head>
+<body>
+  <p>Перенаправление на <a href="/">главную страницу</a>…</p>
+</body>
+</html>

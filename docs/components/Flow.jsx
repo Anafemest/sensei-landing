@@ -122,8 +122,12 @@ function Flow() {
         reset(frame); reset(security);
         frame.style.position    = 'absolute';
         frame.style.top         = `${TOTAL_BUDGET}px`;
+        frame.style.left        = '0';
+        frame.style.right       = '0';
         security.style.position = 'absolute';
         security.style.top      = `${TOTAL_BUDGET + fH}px`;
+        security.style.left     = '0';
+        security.style.right    = '0';
         setLitCount(STEPS.length);
         return;
       }
@@ -140,9 +144,14 @@ function Flow() {
       setLitCount(Math.min(Math.floor(into / STEP_BUDGET) + 1, STEPS.length));
     };
 
+    // ResizeObserver: пересчитываем высоту при раскрытии FAQ (без скролла)
+    const ro = new ResizeObserver(onScroll);
+    ro.observe(security);
+
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => {
+      ro.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', setHeight);
       outer.style.minHeight = '';
@@ -154,7 +163,7 @@ function Flow() {
   const fillPct = Math.min(100, (litCount / STEPS.length) * 100);
 
   return (
-    <section id="flow" className="flow-outer-section section" ref={outerRef}>
+    <section id="how-it-works" className="flow-outer-section section" ref={outerRef}>
 
       {/* ── Flow cards — becomes fixed during animation ── */}
       <div className="flow-sticky-frame" ref={frameRef}>

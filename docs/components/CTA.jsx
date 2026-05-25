@@ -131,26 +131,29 @@ function Footer() {
           <div className="footer__col">
             <p className="footer__title">Продукт</p>
             <a href="#xforms">Решения</a>
-            <a href="#flow">Как работает</a>
-            <a href="#anatomy">Платформа</a>
+            <a href="#what-is">Платформа</a>
+            <a href="#how-it-works">Как работает</a>
+            <a href="#case-studies">Кейсы</a>
           </div>
           <div className="footer__col">
             <p className="footer__title">Компания</p>
-            <a href="#industries">Кейсы</a>
-            <a href="#security">Безопасность</a>
-            <a href="privacy/index.html">Политика конфиденциальности</a>
+            <a href="#faq">FAQ</a>
+            <a href="#team">Команда</a>
+            <a href="#testimonials">Отзывы</a>
           </div>
           <div className="footer__col">
             <p className="footer__title">Контакты</p>
             <a href="#form">Связаться через форму</a>
-            <div className="footer__contact-group">
-              <p className="footer__contact-label">Написать нам</p>
+            <div className="footer__contact-group footer__contact-group--inline">
+              <span className="footer__contact-label">Написать нам:</span>
               <a href="mailto:hello@sensei.works" className="footer__contact-link">hello@sensei.works</a>
             </div>
-            <div className="footer__contact-group">
-              <p className="footer__contact-label">Позвонить нам</p>
-              <a href="tel:+79139072017" className="footer__contact-link">+7 (913) 907 2017</a>
-              <a href="tel:+79266298201" className="footer__contact-link footer__contact-link--secondary">+7 (926) 629 8201</a>
+            <div className="footer__contact-group footer__contact-group--inline">
+              <span className="footer__contact-label">Позвонить нам:</span>
+              <div className="footer__phones">
+                <a href="tel:+79139072017" className="footer__contact-link">+7 (913) 907 2017</a>
+                <a href="tel:+79266298201" className="footer__contact-link">+7 (926) 629 8201</a>
+              </div>
             </div>
           </div>
         </div>

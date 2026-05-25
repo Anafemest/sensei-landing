@@ -35,7 +35,7 @@ function Anatomy() {
   // anatomy__core is at center; we place nodes on a circle of radius (ratio × 360).
   const center = 360;
   return (
-    <section className="section" id="anatomy">
+    <section className="section" id="what-is">
       <div className="container">
         <div className="section__head">
           <span className="section__eyebrow">Анатомия платформы</span>

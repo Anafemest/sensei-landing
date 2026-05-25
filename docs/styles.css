@@ -582,7 +582,7 @@ a { color: inherit; text-decoration: none; }
 
 .section {
   position: relative; z-index: 1;
-  padding: 72px 0;
+  padding: 72px 0 0;
 }
 .section--alt { background: var(--bg); }
 
@@ -1038,7 +1038,7 @@ a { color: inherit; text-decoration: none; }
 /* Sticky frame: becomes fixed while user scrolls through the budget */
 .flow-sticky-frame {
   background: transparent;
-  padding: 80px 0 60px;
+  padding: 80px 0 72px;
 }
 .flow-sticky-frame.is-stuck {
   position: fixed;
@@ -1052,7 +1052,7 @@ a { color: inherit; text-decoration: none; }
 /* Security blocks that sit below the flow frame */
 .flow-security {
   background: transparent;
-  padding: 60px 0 80px;
+  padding: 0;
   z-index: 49; /* just below the flow frame (z-index 50) */
 }
 
@@ -1117,10 +1117,12 @@ a { color: inherit; text-decoration: none; }
 }
 .flow__step.active .flow__dot {
   transform: scale(1.08);
-  box-shadow: 0 12px 32px rgba(106, 53, 244, 0.48),
-              0 0 0 6px rgba(106, 53, 244, 0.12);
+  box-shadow: 0 0 0 6px rgba(106, 53, 244, 0.12),
+              0 0 28px rgba(106, 53, 244, 0.42); /* glow, no downward offset */
 }
 .flow__body {
+  position: relative;
+  z-index: 1; /* always above the dot's box-shadow */
   padding: 20px 18px;
   border-radius: 16px;
   background: #fff;
@@ -1281,14 +1283,8 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Case modal overlay ────────────────────────────────────── */
 
-body.modal-open > div#app > div.page > section:not(#industries) {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-body.modal-open > div#app > div.page > section#industries {
-  position: relative;
-  z-index: 100;
+body.modal-open {
+  /* scroll locked via JS; backdrop-filter on .case-modal blurs the page */
 }
 
 .case-modal {
@@ -1307,24 +1303,108 @@ body.modal-open > div#app > div.page > section#industries {
   to   { opacity: 1; }
 }
 .case-modal__sheet {
-  position: relative;
-  width: min(960px, 100%);
+  width: min(1280px, calc(100% - 40px));
   background: linear-gradient(160deg, #ffffff 0%, #fbfaff 100%);
   border: 1px solid var(--border);
   border-radius: 26px;
   box-shadow:
     0 40px 100px rgba(15, 20, 55, 0.34),
     0 0 0 1px rgba(106, 53, 244, 0.06);
-  padding: 44px 48px 40px;
-  display: flex; flex-direction: column; gap: 22px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 80px);
   animation: case-modal-pop 0.36s var(--ease-out-expo);
+  overflow: hidden;
 }
+
+/* Sticky header bar — title + close button */
+.case-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 22px 24px 22px 44px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #f9f8ff 100%);
+  position: sticky; top: 0; z-index: 2;
+}
+.case-modal__header-meta {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.case-modal__header .case-detail__title {
+  font-size: clamp(1.3rem, 2vw, 1.85rem);
+  margin: 0;
+}
+.case-modal__header .case-detail__eyebrow { margin: 0; }
+
+/* Body: left sidebar + right scrollable */
+.case-modal__body {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Left sidebar: role + short + insight + context */
+.case-modal__left {
+  padding: 28px 24px 28px 44px;
+  display: flex; flex-direction: column; gap: 16px;
+  border-right: 1px solid var(--border);
+  background: linear-gradient(170deg, #ffffff 0%, #f9f8ff 100%);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.case-modal__left::-webkit-scrollbar { display: none; }
+
+/* Right panel: clips content, positions custom scrollbar */
+.case-modal__right {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Scrollable inner container — native scrollbar hidden */
+.case-modal__right-scroll {
+  overflow-y: auto;
+  height: 100%;
+  padding: 40px 52px 40px 36px; /* extra right padding for scrollbar */
+  display: flex; flex-direction: column; gap: 14px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.case-modal__right-scroll::-webkit-scrollbar { display: none; }
+
+/* Custom scrollbar track */
+.case-modal__scroll-track {
+  position: absolute;
+  right: 8px;
+  top: 16px;
+  bottom: 16px;
+  width: 4px;
+  background: rgba(106, 53, 244, 0.08);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.case-modal__right:hover .case-modal__scroll-track { opacity: 1; }
+
+/* Custom scrollbar thumb */
+.case-modal__scroll-thumb {
+  position: absolute;
+  left: 0; right: 0;
+  background: rgba(106, 53, 244, 0.35);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.case-modal__scroll-thumb:hover { background: rgba(106, 53, 244, 0.6); }
 @keyframes case-modal-pop {
   from { opacity: 0; transform: translateY(14px) scale(0.985); }
   to   { opacity: 1; transform: translateY(0)    scale(1); }
 }
 .case-modal__close {
-  position: absolute; top: 18px; right: 18px;
+  flex-shrink: 0;
   width: 40px; height: 40px;
   border-radius: 12px;
   border: 1px solid var(--border);
@@ -1359,13 +1439,12 @@ body.modal-open > div#app > div.page > section#industries {
 }
 .case-detail__title {
   margin: 0;
-  font-size: clamp(1.8rem, 3.6vw, 2.6rem);
+  font-size: clamp(1.5rem, 2.8vw, 2.1rem);
   font-weight: 800;
   line-height: 1.08;
   letter-spacing: -0.03em;
   color: var(--ink);
   text-wrap: balance;
-  max-width: 22ch;
 }
 .case-detail__role {
   margin: 0;
@@ -1385,7 +1464,6 @@ body.modal-open > div#app > div.page > section#industries {
 
 /* Mini flow: Source → Equipment → AI → Engineer */
 .case-flow {
-  margin-top: 8px;
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
   padding: 22px 24px;
@@ -1645,6 +1723,76 @@ body.modal-open > div#app > div.page > section#industries {
   color: var(--muted);
 }
 
+/* Monetary savings block */
+.case-saving {
+  padding: 20px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(17, 162, 113, 0.30);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(17, 162, 113, 0.10), transparent 55%),
+    linear-gradient(155deg, #f0fdf8 0%, #ffffff 65%);
+  display: flex; flex-direction: column; gap: 10px;
+}
+.case-saving__head {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 11px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.14em;
+  color: #0d9060;
+}
+.case-saving__formula {
+  margin: 0;
+  font-size: 0.9rem; line-height: 1.5;
+  color: var(--muted);
+}
+.case-saving__bottom {
+  display: flex; align-items: baseline; gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+.case-saving__label {
+  font-size: 0.82rem; font-weight: 600;
+  color: #0d9060;
+  white-space: nowrap;
+}
+.case-saving__result {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #0d9060;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+
+/* Left sidebar CTA */
+.case-cta {
+  margin-top: auto;
+  padding-top: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.case-cta__label {
+  margin: 0;
+  font-size: 0.82rem; line-height: 1.45;
+  color: var(--muted);
+}
+.case-cta__btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--primary), var(--primary-2));
+  color: #fff;
+  font-size: 0.95rem; font-weight: 700;
+  letter-spacing: -0.01em;
+  border: none; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(106, 53, 244, 0.32);
+  transition: transform 0.2s var(--ease-out-expo), box-shadow 0.2s ease, opacity 0.2s;
+  width: 100%;
+}
+.case-cta__btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(106, 53, 244, 0.42);
+}
+.case-cta__btn:active { transform: translateY(0); opacity: 0.9; }
+
 /* Closing quote */
 .case-section--quote {
   background:
@@ -1805,7 +1953,7 @@ body.modal-open > div#app > div.page > section#industries {
 /* ── Compliance / standards strip ──────────────────────────── */
 
 .sec-standards {
-  margin-top: 60px;
+  margin-top: 72px;
   padding: 36px 40px;
   border-radius: 24px;
   background: var(--surface-2);
@@ -2022,20 +2170,17 @@ body.modal-open > div#app > div.page > section#industries {
   background:
     radial-gradient(circle at 30% 20%, rgba(106, 53, 244, 0.18), transparent 60%),
     linear-gradient(160deg, rgba(106, 53, 244, 0.10), rgba(47, 98, 240, 0.04));
-  overflow: hidden;
+  clip-path: inset(0); /* clip without overflow:hidden compositing artifacts */
   display: grid; place-items: center;
-  transform: translateZ(0); /* own GPU layer — prevents subpixel gap on overflow: hidden */
-  will-change: transform;
 }
 .team-card__photo img {
   width: 100%; height: 100%;
   object-fit: cover;
   display: block;
-  backface-visibility: hidden;
-  transform: scale(1.005); /* tiny base overlap so edges never leave the container */
+  transform: scale(1.01);
   transition: transform .5s var(--ease-out-expo);
 }
-.team-card:hover .team-card__photo img { transform: scale(1.04); }
+.team-card:hover .team-card__photo img { transform: scale(1.05); }
 .team-card__photo--fallback {
   font-size: 56px;
   font-weight: 900;
@@ -2111,7 +2256,8 @@ body.modal-open > div#app > div.page > section#industries {
   flex-wrap: nowrap;
   gap: 18px;
   overflow-x: auto;
-  overflow-y: hidden;
+  overflow-y: clip;             /* unlike hidden, allows overflow-clip-margin */
+  overflow-clip-margin: 64px;   /* lets hover shadows breathe beyond the padding edge */
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
   /* Bleed past the container so cards can scroll edge-to-edge with a soft fade */
@@ -2370,21 +2516,37 @@ body.modal-open > div#app > div.page > section#industries {
 /* ── Footer contacts — special styling ──────────────────────────── */
 
 .footer__contact-group {
-  margin-top: 12px;
+  margin-top: 0;
+  padding: 4px 0;
+}
+.footer__contact-group--inline {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.footer__phones {
+  display: flex;
+  flex-direction: column;
 }
 
 .footer__contact-label {
   font-size: 13px;
   color: rgba(255,255,255,0.55);
-  padding: 4px 0;
+  padding: 0;
   margin: 0;
+  white-space: nowrap;
   transition: color .2s;
+}
+
+/* Higher specificity than .footer__col a to override padding: 4px 0 */
+.footer__col .footer__contact-link {
+  padding: 0;
 }
 
 .footer__contact-link {
   display: block;
   font-size: 13px;
-  padding: 4px 0;
+  padding: 0;
   color: var(--primary);
   font-weight: 500;
   text-decoration: none;
@@ -2395,9 +2557,6 @@ body.modal-open > div#app > div.page > section#industries {
   color: var(--primary-2);
 }
 
-.footer__contact-link--secondary {
-  padding-left: 24px;
-}
 .footer__bottom {
   border-top: 1px solid rgba(255,255,255,0.08);
   padding-top: 20px;
@@ -2422,9 +2581,13 @@ body.modal-open > div#app > div.page > section#industries {
   .quote { width: min(82vw, 360px); }
   .cta__grid { grid-template-columns: 1fr; gap: 32px; }
   .case-grid { grid-template-columns: 1fr 1fr; }
+  .case-modal__header { padding: 18px 20px 18px 28px; }
+  .case-modal__body { grid-template-columns: 1fr; }
+  .case-modal__left { border-right: none; border-bottom: 1px solid var(--border); padding: 20px 28px; }
+  .case-modal__right { max-height: 60vh; }
+  .case-modal__right-scroll { padding: 20px 40px 24px 28px; }
   .case-detail__grid { grid-template-columns: 1fr; }
-  .case-results { grid-template-columns: 1fr; gap: 10px; }
-  .case-modal__sheet { padding: 36px 28px 28px; }
+  .case-results { grid-template-columns: 1fr 1fr; gap: 10px; }
   .case-flow__node { min-width: 80px; }
   .nav__links { display: none; }
   .anatomy { height: 480px; }

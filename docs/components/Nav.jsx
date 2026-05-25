@@ -5,9 +5,9 @@ function Nav() {
 
   React.useEffect(() => {
     const handleScroll = () => {
-      const sections = ["xforms", "anatomy", "flow", "faq", "industries", "team", "testimonials"];
+      const sections = ["xforms", "what-is", "how-it-works", "faq", "case-studies", "team", "testimonials", "form"];
       let current = "";
-      
+
       for (const section of sections) {
         const el = document.getElementById(section);
         if (el) {
@@ -18,8 +18,10 @@ function Nav() {
           }
         }
       }
-      
-      if (current) setActiveSection(current);
+
+      // #form не является пунктом меню — гасим подсветку
+      if (current === "form") current = "";
+      setActiveSection(current); // всегда обновляем, в т.ч. сброс в ""
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -36,16 +38,16 @@ function Nav() {
 
   const links = [
     ["Решения",       "#xforms"],
-    ["Платформа",     "#anatomy"],
-    ["Как работает",  "#flow"],
+    ["Платформа",     "#what-is"],
+    ["Как работает",  "#how-it-works"],
     ["FAQ",           "#faq"],
-    ["Кейсы",         "#industries"],
+    ["Кейсы",         "#case-studies"],
     ["Команда",       "#team"],
     ["Отзывы",        "#testimonials"],
   ];
   return (
     <header className="nav">
-      <a className="nav__brand" href="#top"><Brand size={36} /></a>
+      <a className="nav__brand" href="#top" onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: 'smooth' }); }}><Brand size={36} /></a>
       <nav className="nav__links">
         {links.map(([l, h]) => (
           <a 

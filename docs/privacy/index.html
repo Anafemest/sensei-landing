@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Политика в отношении обработки персональных данных — Sensei</title>
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="privacy.css">
+  <link rel="stylesheet" href="privacy.css?v=9">
 </head>
 <body>
   <div class="page">
@@ -40,10 +40,10 @@
       </a>
       <nav class="nav__links">
         <a href="../index.html#xforms">Решения</a>
-        <a href="../index.html#anatomy">Платформа</a>
-        <a href="../index.html#flow">Как работает</a>
+        <a href="../index.html#what-is">Платформа</a>
+        <a href="../index.html#how-it-works">Как работает</a>
         <a href="../index.html#faq">FAQ</a>
-        <a href="../index.html#industries">Кейсы</a>
+        <a href="../index.html#case-studies">Кейсы</a>
         <a href="../index.html#team">Команда</a>
         <a href="../index.html#testimonials">Отзывы</a>
       </nav>
@@ -87,20 +87,25 @@
         <div class="privacy__layout">
         <nav class="privacy__toc" aria-label="Содержание">
           <p class="privacy__toc-title">Содержание</p>
-          <ol>
-            <li><a href="#s1">Назначение и область действия документа</a></li>
-            <li><a href="#s2">Условия обработки персональных данных. Принципы обработки</a></li>
-            <li><a href="#s3">Состав, цели и способы обработки персональных данных</a></li>
-            <li><a href="#s4">Специальные категории персональных данных</a></li>
-            <li><a href="#s5">Особенности обработки персональных данных, разрешённых субъектом</a></li>
-            <li><a href="#s6">Биометрические персональные данные</a></li>
-            <li><a href="#s7">Поручение обработки персональных данных третьему лицу</a></li>
-            <li><a href="#s8">Трансграничная передача персональных данных</a></li>
-            <li><a href="#s9">Права субъекта персональных данных</a></li>
-            <li><a href="#s10">Хранение персональных данных и обязанности оператора</a></li>
-            <li><a href="#s11">Меры по обеспечению безопасности персональных данных при их обработке</a></li>
-            <li><a href="#s12">Дополнительные условия</a></li>
-          </ol>
+          <div class="privacy__toc-scroll">
+            <ol>
+              <li><a href="#s1">Назначение и область действия документа</a></li>
+              <li><a href="#s2">Условия обработки персональных данных. Принципы обработки</a></li>
+              <li><a href="#s3">Состав, цели и способы обработки персональных данных</a></li>
+              <li><a href="#s4">Специальные категории персональных данных</a></li>
+              <li><a href="#s5">Особенности обработки персональных данных, разрешённых субъектом</a></li>
+              <li><a href="#s6">Биометрические персональные данные</a></li>
+              <li><a href="#s7">Поручение обработки персональных данных третьему лицу</a></li>
+              <li><a href="#s8">Трансграничная передача персональных данных</a></li>
+              <li><a href="#s9">Права субъекта персональных данных</a></li>
+              <li><a href="#s10">Хранение персональных данных и обязанности оператора</a></li>
+              <li><a href="#s11">Меры по обеспечению безопасности персональных данных при их обработке</a></li>
+              <li><a href="#s12">Дополнительные условия</a></li>
+            </ol>
+          </div>
+          <div class="privacy__toc-track">
+            <div class="privacy__toc-thumb"></div>
+          </div>
         </nav>
 
         <article class="privacy__body">
@@ -368,13 +373,12 @@
           <div class="footer__col">
             <p class="footer__title">Продукт</p>
             <a href="../#xforms">Решения</a>
-            <a href="../#flow">Как работает</a>
-            <a href="../#anatomy">Платформа</a>
+            <a href="../#how-it-works">Как работает</a>
+            <a href="../#what-is">Платформа</a>
           </div>
           <div class="footer__col">
             <p class="footer__title">Компания</p>
-            <a href="../#industries">Кейсы</a>
-            <a href="../#security">Безопасность</a>
+            <a href="../#case-studies">Кейсы</a>
             <a href="index.html">Политика конфиденциальности</a>
           </div>
           <div class="footer__col">
@@ -391,7 +395,7 @@
 
   </div>
   <script>
-    // Highlight the currently visible section in the sticky TOC.
+    // ── Подсветка активной секции ────────────────────────────────────────────
     (() => {
       const links = document.querySelectorAll(".privacy__toc a[href^='#s']");
       if (!links.length) return;
@@ -402,7 +406,6 @@
       });
       const sections = [...map.keys()];
       const setActive = () => {
-        // The section whose top edge is closest to (but above) the threshold.
         const threshold = 140;
         let current = sections[0];
         for (const s of sections) {
@@ -411,11 +414,76 @@
         }
         links.forEach(a => a.classList.remove("is-active"));
         const a = map.get(current);
-        if (a) a.classList.add("is-active");
+        if (a) {
+          a.classList.add("is-active");
+          // Автоскролл активного пункта в видимую зону TOC
+          const scrollEl = document.querySelector('.privacy__toc-scroll');
+          if (scrollEl) {
+            const aTop = a.offsetTop - scrollEl.offsetTop;
+            const aBottom = aTop + a.offsetHeight;
+            if (aTop < scrollEl.scrollTop) scrollEl.scrollTop = aTop - 8;
+            else if (aBottom > scrollEl.scrollTop + scrollEl.clientHeight)
+              scrollEl.scrollTop = aBottom - scrollEl.clientHeight + 8;
+          }
+        }
       };
       setActive();
       window.addEventListener("scroll", setActive, { passive: true });
       window.addEventListener("resize", setActive);
+    })();
+
+    // ── Кастомный скроллбар TOC ──────────────────────────────────────────────
+    (() => {
+      const toc   = document.querySelector('.privacy__toc');
+      const scroll = document.querySelector('.privacy__toc-scroll');
+      const track  = document.querySelector('.privacy__toc-track');
+      const thumb  = document.querySelector('.privacy__toc-thumb');
+      if (!toc || !scroll || !track || !thumb) return;
+
+      const update = () => {
+        const { scrollTop, scrollHeight, clientHeight } = scroll;
+        const trackH = track.clientHeight;
+        if (scrollHeight <= clientHeight) { track.style.opacity = '0'; return; }
+        const thumbH = Math.max(28, (clientHeight / scrollHeight) * trackH);
+        const maxTop = trackH - thumbH;
+        const top    = maxTop > 0 ? (scrollTop / (scrollHeight - clientHeight)) * maxTop : 0;
+        thumb.style.height = thumbH + 'px';
+        thumb.style.top    = top + 'px';
+      };
+
+      scroll.addEventListener('scroll', update, { passive: true });
+      window.addEventListener('resize', update);
+      update();
+
+      // Перетаскивание ползунка
+      let dragging = false, startY = 0, startScrollTop = 0;
+      thumb.addEventListener('mousedown', e => {
+        dragging = true;
+        startY = e.clientY;
+        startScrollTop = scroll.scrollTop;
+        document.body.style.userSelect = 'none';
+        e.preventDefault();
+      });
+      document.addEventListener('mousemove', e => {
+        if (!dragging) return;
+        const trackH  = track.clientHeight;
+        const thumbH  = parseFloat(thumb.style.height) || 0;
+        const ratio   = (e.clientY - startY) / (trackH - thumbH);
+        scroll.scrollTop = startScrollTop + ratio * (scroll.scrollHeight - scroll.clientHeight);
+      });
+      document.addEventListener('mouseup', () => {
+        dragging = false;
+        document.body.style.userSelect = '';
+      });
+
+      // Клик по треку — прыгнуть к позиции
+      track.addEventListener('click', e => {
+        if (e.target === thumb) return;
+        const rect   = track.getBoundingClientRect();
+        const thumbH = parseFloat(thumb.style.height) || 0;
+        const ratio  = Math.max(0, Math.min(1, (e.clientY - rect.top - thumbH / 2) / (track.clientHeight - thumbH)));
+        scroll.scrollTop = ratio * (scroll.scrollHeight - scroll.clientHeight);
+      });
     })();
   </script>
 </body>
