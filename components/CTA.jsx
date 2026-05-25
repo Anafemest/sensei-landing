@@ -11,7 +11,7 @@ function CTA() {
               <span className="hero__eyebrow" style={{ color: "rgba(255,255,255,0.75)" }}>
                 Начать работу
               </span>
-              <h2 style={{ lineHeight: "1.05", fontSize: "53px" }}>Запросить демонстрацию</h2>
+              <h2>Запросить демонстрацию</h2>
               <p className="cta__lead">
                 Оставьте контакты — мы подготовим сценарий внедрения под ваши процессы
                 и покажем, как Sensei решает задачи вашего бизнеса.
@@ -45,7 +45,7 @@ function CTA() {
                 </button>
                 <p className="form-panel__fineprint">
                   Отправляя форму, вы соглашаетесь с{" "}
-                  <a href="#privacy">политикой конфиденциальности</a>.
+                  <a href="privacy/index.html">политикой конфиденциальности</a>.
                 </p>
               </form>
             </div>
@@ -88,9 +88,9 @@ function Footer() {
           </div>
           <div className="footer__col">
             <p className="footer__title">Компания</p>
-            <a href="#industries">Отрасли</a>
+            <a href="#industries">Кейсы</a>
             <a href="#security">Безопасность</a>
-            <a href="#privacy">Политика конфиденциальности</a>
+            <a href="privacy/index.html">Политика конфиденциальности</a>
           </div>
           <div className="footer__col">
             <p className="footer__title">Контакт</p>

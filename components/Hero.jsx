@@ -12,7 +12,7 @@ function Hero() {
           <p className="hero__lead">
             Sensei — виртуальный сотрудник, который живёт on-premise внутри
             вашего контура. Подключается к CRM, OSS/BSS, NMS и биллингу
-            и возвращает готовый результат в тикет. Данные не покидают периметр.
+            и возвращает готовый результат. Данные не покидают периметр.
           </p>
           <div className="hero__actions">
             <a className="btn btn--primary" href="#form">
@@ -29,7 +29,7 @@ function Hero() {
               <div className="metric__label">Экономия на рутине</div>
             </div>
             <div className="metric">
-              <div className="metric__value"><span className="accent">100%</span> on-premise</div>
+              <div className="metric__value"><span className="accent">100%</span> on-prem</div>
               <div className="metric__label">Внутри вашей инфраструктуры</div>
             </div>
           </div>

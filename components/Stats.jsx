@@ -4,10 +4,10 @@
 const LOGOS = [
 { name: "LUBNET", src: "https://www.lubnet.ru/icons/logo3.svg",
   href: "https://www.lubnet.ru/" },
-{ name: "ЕСК", src: "https://esknet.net/images/logo.svg",
+{ name: "ЕСК", src: "assets/logos/esk.svg",
   href: "https://esknet.net/" },
-{ name: "SevenSky", src: "https://gde-luchshe.ru/media/providers/4/logo_d3a2a4c736.webp",
-  href: "#" },
+{ name: "SevenSky", src: "assets/logos/sevensky.svg",
+  href: "https://www.seven-sky.net/" },
 { name: "FORMULA", src: "https://formula-smart.ru/wp-content/themes/formula/images/formula-logo.svg",
   href: "https://formula-smart.ru/" }];
 
