@@ -1,16 +1,11 @@
-// Transformations — 4 before/after KPI cards in a 24px-gap column that
-// collapse into a peek-stack as the user scrolls.
+// Transformations — 4 before/after KPI cards + 1 custom task card in a
+// 24px-gap column that collapse into a peek-stack as the user scrolls.
 //
-// Approach: every card is `position: sticky; top: 110px`. In flow they
-// sit naturally with `gap: 24px`. JS measures each card's natural
-// document position once on mount; on scroll we apply `translateY(i*32)`
-// ONLY when a card has reached its sticky stop, otherwise the transform
-// is 0 (so the flow gap stays a clean 24px). The last 24px of approach
-// is ramped smoothly so the peek snaps in without a hard jump.
-//
-// Because every card shares the SAME sticky top, they all detach at the
-// same scroll position when the stack's parent ends — the collapsed
-// stack leaves as a single block.
+// Approach: pure CSS. Each card uses `position: sticky` with a per-card
+// `top: calc(110px + var(--i) * 32px)` so it stops 32px lower than the
+// previous one — forming a peek-stack naturally. No scroll JS, no
+// translateY ramps (those caused visible jerks because the ramp moved
+// the card opposite to scroll direction right before sticking).
 
 const XFORMS = [
   { num: "01", title: "Проверка технической возможности",
@@ -51,7 +46,7 @@ function CustomTaskCard() {
   };
 
   return (
-    <article className="xform xform--custom">
+    <article className="xform xform--custom" style={{ "--i": 4 }}>
       <div className="xform__head">
         <div className="xform__num">05</div>
         <h3 className="xform__title">Ваша задача</h3>
@@ -71,96 +66,102 @@ function CustomTaskCard() {
   );
 }
 
-const STICKY_TOP = 110;     // must match `.xform { top: ... }` in CSS
-const PEEK_PER_CARD = 32;   // visible peek of each previous card in the stack
-const RAMP_ZONE = 24;       // px of scroll over which the peek phases in
-
 function Transformations() {
+  // The peek-stack is pure CSS. JS does two things:
+  //  1. Measures the sticky heading's height so cards know where to stack.
+  //  2. Once the stack starts collapsing, applies a matching translateY
+  //     to the heading so it un-sticks together with the cards instead
+  //     of staying pinned to the top while cards scroll up under it.
   const sectionRef = React.useRef(null);
-  const stackRef = React.useRef(null);
 
   React.useEffect(() => {
     const section = sectionRef.current;
-    const stack = stackRef.current;
-    if (!section || !stack) return;
-    const cards = Array.from(stack.querySelectorAll(".xform"));
-    if (!cards.length) return;
+    if (!section) return;
 
-    // Measure each card's natural document position WITHOUT any transform.
-    let naturalDocTops = [];
-    let cardH = 0;
-    const measure = () => {
-      // Clear transforms before measuring so we get true flow positions.
-      cards.forEach((c) => { c.style.transform = ""; });
-      naturalDocTops = cards.map((c) => {
-        const r = c.getBoundingClientRect();
-        return r.top + window.scrollY;
-      });
-      cardH = cards[0].getBoundingClientRect().height;
+    const head = section.querySelector('.section__head');
+    const stack = section.querySelector('.xforms-stack');
+    const cards = stack ? [...stack.querySelectorAll('.xform')] : [];
+    const lastCard = cards[cards.length - 1];
+    const HEAD_TOP = 110; // matches CSS: position:sticky; top:110px
+    let stackTop = HEAD_TOP;
+
+    // 1. Measure heading, set --xforms-stack-top so cards know where to pile
+    const updateStackTop = () => {
+      stackTop = HEAD_TOP + head.offsetHeight + 32; // 32 = margin-bottom
+      section.style.setProperty('--xforms-stack-top', `${stackTop}px`);
     };
-    measure();
+    updateStackTop();
+    window.addEventListener('resize', updateStackTop);
 
+    // 2. When the last card starts scrolling off its sticky position,
+    //    move the heading by the same delta so they exit together.
     const onScroll = () => {
-      const scrollY = window.scrollY;
-      const sectionRect = section.getBoundingClientRect();
-      // All cards share the same sticky top, so they all detach when
-      // the stack's bottom rises past STICKY_TOP + cardH.
-      const stackRect = stack.getBoundingClientRect();
-      const detached = stackRect.bottom < STICKY_TOP + cardH;
+      if (!lastCard) return;
+      const wrap = head.parentElement; // .xforms-wrap
+      const wrapBottom = wrap.getBoundingClientRect().bottom;
+      const lastI = cards.length - 1;           // --i of last card
+      const lastCardStickyTop = stackTop + lastI * 32;
+      const threshold = lastCardStickyTop + lastCard.offsetHeight;
 
-      cards.forEach((card, i) => {
-        const naturalViewportTop = naturalDocTops[i] - scrollY;
-        // Ramp the peek in over the last RAMP_ZONE px before the card
-        // would stick — gives a smooth phase-in rather than a hard snap.
-        const zoneStart = STICKY_TOP + RAMP_ZONE;
-        const zoneEnd = STICKY_TOP;
-        let t = (zoneStart - naturalViewportTop) / (zoneStart - zoneEnd);
-        t = Math.max(0, Math.min(1, t));
-        if (detached) t = 0;
-        const peek = t * i * PEEK_PER_CARD;
-        card.style.transform = `translateY(${peek}px)`;
-      });
+      if (wrapBottom < threshold) {
+        const delta = threshold - wrapBottom;
+        // Shift sticky `top` down by delta — every element moves at exactly
+        // 1px per scroll px regardless of its own natural-exit state.
+        head.style.top = `${HEAD_TOP - delta}px`;
+        cards.forEach((card, idx) => {
+          card.style.top = `${stackTop + idx * 32 - delta}px`;
+        });
+      } else {
+        head.style.top = '';
+        cards.forEach(c => { c.style.top = ''; });
+      }
     };
 
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", () => { measure(); onScroll(); });
-    return () => window.removeEventListener("scroll", onScroll);
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', updateStackTop);
+      if (head) head.style.top = '';
+      cards.forEach(c => { c.style.top = ''; });
+    };
   }, []);
 
   return (
     <section className="section xforms-section" id="xforms" ref={sectionRef}>
       <div className="container">
-        <div className="section__head">
-          <span className="section__eyebrow">Проблемы → решения</span>
-          <h2>Какие бизнес-процессы вы можете<br /><em>оптимизировать с помощью Sensei</em></h2>
-          <p className="section__sub">
-            Каждый день инженеры и операторы тратят часы на рутину, которую Sensei
-            выполняет за минуты — в рамках вашего регламента, под вашим аудитом.
-          </p>
-        </div>
-        <div className="xforms-stack" ref={stackRef}>
-          {XFORMS.map((x, i) => (
-            <article key={x.num} className="xform" style={{ "--i": i }}>
-              <div className="xform__head">
-                <div className="xform__num">{x.num}</div>
-                <h3 className="xform__title">{x.title}</h3>
-              </div>
-              <p className="xform__desc">{x.desc}</p>
-              <div className="kpi">
-                <div className="kpi__part">
-                  <span className="kpi__label">Боль</span>
-                  <span className="kpi__before">{x.before}</span>
+        <div className="xforms-wrap">
+          <div className="section__head">
+            <span className="section__eyebrow">Проблемы → решения</span>
+            <h2><span style={{whiteSpace:'nowrap'}}>Какие бизнес-процессы вы можете</span><br /><em>оптимизировать с помощью Sensei</em></h2>
+            <p className="section__sub">
+              Каждый день инженеры и операторы тратят часы на рутину, которую Sensei
+              выполняет за минуты — в рамках вашего регламента, под вашим аудитом.
+            </p>
+          </div>
+          <div className="xforms-stack">
+            {XFORMS.map((x, i) => (
+              <article key={x.num} className="xform" style={{ "--i": i }}>
+                <div className="xform__head">
+                  <div className="xform__num">{x.num}</div>
+                  <h3 className="xform__title">{x.title}</h3>
                 </div>
-                <span className="kpi__arrow">→</span>
-                <div className="kpi__part right">
-                  <span className="kpi__label">Решение</span>
-                  <span className="kpi__after">{x.after}</span>
+                <p className="xform__desc">{x.desc}</p>
+                <div className="kpi">
+                  <div className="kpi__part">
+                    <span className="kpi__label">Боль</span>
+                    <span className="kpi__before">{x.before}</span>
+                  </div>
+                  <span className="kpi__arrow">→</span>
+                  <div className="kpi__part right">
+                    <span className="kpi__label">Решение</span>
+                    <span className="kpi__after">{x.after}</span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))}
-          <CustomTaskCard />
+              </article>
+            ))}
+            <CustomTaskCard />
+          </div>
         </div>
       </div>
     </section>

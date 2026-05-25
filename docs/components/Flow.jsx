@@ -75,140 +75,193 @@ function FAQItem({ q, a }) {
 }
 
 function Flow() {
-  const sectionRef = React.useRef(null);
-  const flowRef = React.useRef(null);
-  const [litCount, setLitCount] = React.useState(0);
+  const outerRef    = React.useRef(null); // scroll-budget section
+  const frameRef    = React.useRef(null); // flow cards panel
+  const securityRef = React.useRef(null); // perimeter + standards + faq
+  const [litCount, setLitCount] = React.useState(1);
+
+  const STEP_BUDGET  = 280;
+  const TOTAL_BUDGET = STEPS.length * STEP_BUDGET; // 1120 px
 
   React.useEffect(() => {
+    const outer    = outerRef.current;
+    const frame    = frameRef.current;
+    const security = securityRef.current;
+    if (!outer || !frame || !security) return;
+
+    // Outer section height = frame + security + scroll budget.
+    // Both children sit in normal flow initially (frame on top, security below),
+    // so the page looks correct before the section enters the viewport.
+    const setHeight = () => {
+      const fH = frame.offsetHeight;
+      const sH = security.offsetHeight;
+      outer.style.minHeight = `${fH + sH + TOTAL_BUDGET}px`;
+    };
+    requestAnimationFrame(setHeight);
+    window.addEventListener('resize', setHeight);
+
+    const reset = (el) => { el.style.position = el.style.top = el.style.left = el.style.right = ''; };
+
     const onScroll = () => {
-      const section = sectionRef.current;
-      const flow = flowRef.current;
-      if (!section || !flow) return;
+      const into = -outer.getBoundingClientRect().top;
+      const fH   = frame.offsetHeight;
+      const sH   = security.offsetHeight; // live — updates when FAQ expands
 
-      const sectionRect = section.getBoundingClientRect();
-      const flowRect = flow.getBoundingClientRect();
-      const vh = window.innerHeight;
+      // Always keep outer tall enough so FAQ expansion never overlaps next section
+      outer.style.minHeight = `${fH + sH + TOTAL_BUDGET}px`;
 
-      // Если секция не видна — обнулить
-      if (sectionRect.bottom < 0 || sectionRect.top > vh) {
+      if (into < 0) {
+        // ── Above section: pure normal flow ──
+        reset(frame); reset(security);
         setLitCount(0);
         return;
       }
 
-      // Прогресс: на сколько flow-блок прошёл от bottom в top viewport
-      const flowTop = flowRect.top;
-      const flowHeight = flowRect.height;
-      
-      // 0 → flow вошёл в bottom viewport
-      // 1 → flow уходит из top viewport
-      let progress = 0;
-      if (flowTop > vh) {
-        progress = 0;
-      } else if (flowTop + flowHeight < 0) {
-        progress = 1;
-      } else {
-        progress = (vh - flowTop) / (vh + flowHeight);
+      if (into >= TOTAL_BUDGET) {
+        // ── Budget done: absolute so both scroll off with the section ──
+        reset(frame); reset(security);
+        frame.style.position    = 'absolute';
+        frame.style.top         = `${TOTAL_BUDGET}px`;
+        security.style.position = 'absolute';
+        security.style.top      = `${TOTAL_BUDGET + fH}px`;
+        setLitCount(STEPS.length);
+        return;
       }
 
-      const count = Math.min(Math.floor(progress * STEPS.length) + 1, STEPS.length);
-      setLitCount(count);
+      // ── In budget: both fixed, security sits right below frame ──
+      frame.style.position    = 'fixed';
+      frame.style.top         = '0';
+      frame.style.left        = '0';
+      frame.style.right       = '0';
+      security.style.position = 'fixed';
+      security.style.top      = `${fH}px`;
+      security.style.left     = '0';
+      security.style.right    = '0';
+      setLitCount(Math.min(Math.floor(into / STEP_BUDGET) + 1, STEPS.length));
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => window.removeEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', setHeight);
+      outer.style.minHeight = '';
+      reset(frame); reset(security);
+    };
   }, []);
 
-  const active = Math.max(0, litCount - 1);
-  const fillPct = Math.min(100, Math.max(0, (litCount / STEPS.length) * 100));
+  const active  = Math.max(0, litCount - 1);
+  const fillPct = Math.min(100, (litCount / STEPS.length) * 100);
 
   return (
-    <section className="section" id="flow" ref={sectionRef}>
-      <div className="container">
-        <div className="section__head">
-          <span className="section__eyebrow">Как это работает</span>
-          <h2>Просто. Быстро. <em>Безопасно.</em></h2>
-          <p className="section__sub">Четыре шага от задачи до готового результата.</p>
-        </div>
-        <div className="flow" ref={flowRef}>
-          <div className="flow__progress" style={{ width: `${fillPct}%` }} />
-          {STEPS.map((s, i) => {
-            const lit = i < litCount;
-            return (
-              <div
-                key={s.step}
-                data-step={i + 1}
-                className={
-                  "flow__step" +
-                  (lit            ? " lit"    : "") +
-                  (i === active   ? " active" : "")
-                }
-              >
-                <div className="flow__dot">{s.step}</div>
-                <div className="flow__body">
-                  <h3 className="flow__title">{s.title}</h3>
-                  <p className="flow__desc">{s.desc}</p>
-                  {s.chips && (
-                    <div className="flow__chips">
-                      {s.chips.map(c => <span key={c} className="flow__chip">{c}</span>)}
-                    </div>
-                  )}
-                  {s.panel && <div className="flow__panel">{s.panel}</div>}
+    <section id="flow" className="flow-outer-section section" ref={outerRef}>
+
+      {/* ── Flow cards — becomes fixed during animation ── */}
+      <div className="flow-sticky-frame" ref={frameRef}>
+        <div className="container">
+          <div className="section__head">
+            <span className="section__eyebrow">Как это работает</span>
+            <h2>Просто. Быстро. <em>Безопасно.</em></h2>
+            <p className="section__sub">Четыре шага от задачи до готового результата.</p>
+          </div>
+          <div className="flow">
+            <div className="flow__progress" style={{ width: `${fillPct}%` }} />
+            {STEPS.map((s, i) => {
+              const lit = i < litCount;
+              return (
+                <div
+                  key={s.step}
+                  className={
+                    "flow__step" +
+                    (lit          ? " lit"    : "") +
+                    (i === active ? " active" : "")
+                  }
+                >
+                  <div className="flow__dot">{s.step}</div>
+                  <div className="flow__body">
+                    <h3 className="flow__title">{s.title}</h3>
+                    <p className="flow__desc">{s.desc}</p>
+                    {s.chips && (
+                      <div className="flow__chips">
+                        {s.chips.map(c => <span key={c} className="flow__chip">{c}</span>)}
+                      </div>
+                    )}
+                    {s.panel && <div className="flow__panel">{s.panel}</div>}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="perimeter">
-          <div className="perimeter__head">
-            <span className="perimeter__eyebrow">Закрытый контур</span>
-            <h3 className="perimeter__title">
-              Всё, что нужно службе ИБ, — <em>уже встроено в платформу</em>
-            </h3>
-          </div>
-          <div className="perimeter__grid">
-            {PERIMETER.map((p) => (
-              <div key={p.label} className="perimeter__card">
-                <span className="perimeter__label">{p.label}</span>
-                <p className="perimeter__desc">{p.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="sec-standards">
-          <div className="sec-standards__head">
-            <span className="sec-standards__label">Соответствие стандартам</span>
-            <p className="sec-standards__sub">
-              Архитектура Sensei спроектирована под требования российских регуляторов
-              и международных стандартов ИБ.
-            </p>
-          </div>
-          <div className="sec-standards__grid">
-            {STANDARDS.map(s => (
-              <div key={s.code} className="std">
-                <span className="std__code">{s.code}</span>
-                <span className="std__desc">{s.desc}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="sec-faq" id="faq">
-          <div className="sec-faq__head">
-            <span className="section__eyebrow">Часто Задаваемые Вопросы</span>
-            <h3><em>FAQ</em></h3>
-            <p className="section__sub">
-              Если у вашей службы безопасности остаются открытые вопросы — мы готовы
-              прислать архитектурный документ и пройти security-ревью.
-            </p>
-          </div>
-          <div className="sec-faq__grid">
-            {FAQS.map((qa, i) => <FAQItem key={i} {...qa} />)}
+              );
+            })}
           </div>
         </div>
       </div>
+
+      {/* ── Security content — also fixed during animation, right below frame ── */}
+      <div className="flow-security" ref={securityRef}>
+        <div className="container">
+          <div className="perimeter">
+            <div className="perimeter__head">
+              <span className="perimeter__eyebrow">Закрытый контур</span>
+              <h3 className="perimeter__title">
+                Всё, что нужно службе ИБ, — <em>уже встроено в платформу</em>
+              </h3>
+            </div>
+            <div className="perimeter__grid">
+              {PERIMETER.map((p) => (
+                <div key={p.label} className="perimeter__card">
+                  <span className="perimeter__label">{p.label}</span>
+                  <p className="perimeter__desc">{p.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="sec-standards">
+            <div className="sec-standards__head">
+              <span className="sec-standards__label">Соответствие стандартам</span>
+              <p className="sec-standards__sub">
+                Архитектура Sensei спроектирована под требования российских регуляторов
+                и международных стандартов ИБ.
+              </p>
+            </div>
+            <div className="sec-standards__grid">
+              {STANDARDS.map(s => (
+                <div key={s.code} className="std">
+                  <span className="std__code">{s.code}</span>
+                  <span className="std__desc">{s.desc}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="sec-faq" id="faq">
+            <div className="sec-faq__head">
+              <span className="section__eyebrow">Часто Задаваемые Вопросы</span>
+              <h3><em>FAQ</em></h3>
+              <p className="section__sub">
+                Если у вашей службы безопасности остаются открытые вопросы — мы готовы
+                прислать архитектурный документ и пройти security-ревью.
+              </p>
+            </div>
+            <div className="sec-faq__grid">
+              {FAQS.map((qa, i) => <FAQItem key={i} {...qa} />)}
+            </div>
+            <div className="faq-cta">
+              <p className="faq-cta__label">Остались вопросы?</p>
+              <p className="faq-cta__sub">Расскажем об архитектуре, проведём security-ревью и ответим на всё лично.</p>
+              <button
+                className="faq-cta__btn"
+                onClick={() => {
+                  const form = document.getElementById('form');
+                  if (form) form.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Записаться на демо →
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </section>
   );
 }
