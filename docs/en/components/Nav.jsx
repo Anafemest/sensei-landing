@@ -1,10 +1,9 @@
-// Top nav — sticky capsule with hamburger menu for mobile.
+// Top nav — English version, with hamburger menu for mobile.
 
 function Nav() {
   const [activeSection, setActiveSection] = React.useState("");
   const [menuOpen, setMenuOpen] = React.useState(false);
 
-  // Highlight active section on scroll
   React.useEffect(() => {
     const handleScroll = () => {
       const sections = ["xforms", "what-is", "how-it-works", "faq", "case-studies", "team", "testimonials", "form"];
@@ -25,7 +24,6 @@ function Nav() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close drawer on outside click
   React.useEffect(() => {
     if (!menuOpen) return;
     const handle = (e) => {
@@ -38,13 +36,13 @@ function Nav() {
   const close = () => setMenuOpen(false);
 
   const links = [
-    ["Решения",       "#xforms"],
-    ["Платформа",     "#what-is"],
-    ["Как работает",  "#how-it-works"],
-    ["FAQ",           "#faq"],
-    ["Кейсы",         "#case-studies"],
-    ["Команда",       "#team"],
-    ["Отзывы",        "#testimonials"],
+    ["Solutions",    "#xforms"],
+    ["Platform",     "#what-is"],
+    ["How It Works", "#how-it-works"],
+    ["FAQ",          "#faq"],
+    ["Cases",        "#case-studies"],
+    ["Team",         "#team"],
+    ["Reviews",      "#testimonials"],
   ];
 
   return (
@@ -62,16 +60,16 @@ function Nav() {
 
       {/* Desktop contacts + CTA */}
       <div className="nav__contacts">
-        <a href="tel:+79139072017" className="nav__contact-icon" title="Позвонить"><IPhone size={20} /></a>
-        <a href="mailto:hello@sensei.works" className="nav__contact-icon" title="Написать письмо"><IMail size={20} /></a>
+        <a href="tel:+79139072017" className="nav__contact-icon" title="Call us"><IPhone size={20} /></a>
+        <a href="mailto:hello@sensei.works" className="nav__contact-icon" title="Email us"><IMail size={20} /></a>
       </div>
-      <a className="nav__cta" href="#form">Записаться на демо <IArrow size={14} /></a>
+      <a className="nav__cta" href="#form">Request a Demo <IArrow size={14} /></a>
 
       {/* Mobile: hamburger button */}
       <button
         className="nav__burger"
         onClick={() => setMenuOpen(o => !o)}
-        aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+        aria-label={menuOpen ? "Close menu" : "Open menu"}
         aria-expanded={menuOpen}
       >
         {menuOpen ? (
@@ -96,15 +94,15 @@ function Nav() {
         ))}
         <div className="nav__drawer-bottom">
           <div className="nav__drawer-contacts">
-            <a href="tel:+79139072017" className="nav__contact-icon" title="Позвонить" onClick={close}>
+            <a href="tel:+79139072017" className="nav__contact-icon" title="Call us" onClick={close}>
               <IPhone size={20} />
             </a>
-            <a href="mailto:hello@sensei.works" className="nav__contact-icon" title="Написать письмо" onClick={close}>
+            <a href="mailto:hello@sensei.works" className="nav__contact-icon" title="Email us" onClick={close}>
               <IMail size={20} />
             </a>
           </div>
           <a className="nav__drawer-cta" href="#form" onClick={close}>
-            Записаться на демо <IArrow size={14} />
+            Request a Demo <IArrow size={14} />
           </a>
         </div>
       </div>

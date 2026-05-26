@@ -1,34 +1,22 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sensei — ИИ-агент внутри вашего контура</title>
-  <link rel="stylesheet" href="styles.css?v=4">
+  <title>Sensei — AI Agent Inside Your Perimeter</title>
+  <link rel="stylesheet" href="../styles.css?v=4">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='brandGrad' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%23b78aff'/%3E%3Cstop offset='55%25' stop-color='%236a35f4'/%3E%3Cstop offset='100%25' stop-color='%232f0d89'/%3E%3C/linearGradient%3E%3CradialGradient id='brandGlow' cx='50%25' cy='50%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='rgba(183,138,255,0.55)'/%3E%3Cstop offset='100%25' stop-color='rgba(183,138,255,0)'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='16' cy='16' r='16' fill='url(%23brandGlow)'/%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='rgba(106,53,244,0.55)' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='rgba(106,53,244,0.85)' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='5' fill='url(%23brandGrad)'/%3E%3Ccircle cx='14.4' cy='14' r='1.4' fill='rgba(255,255,255,0.55)'/%3E%3Ccircle cx='25' cy='16' r='1.7' fill='%233158e9'/%3E%3C/svg%3E">
 </head>
 <body>
-  <!-- ── Hash redirect: старые якоря → новые; устаревшие → убираем ── -->
+  <!-- Hash redirect: renamed anchors -->
   <script>
     (function () {
       var hash = window.location.hash;
       if (!hash) return;
-
-      // Якоря, которые переименованы
-      var renames = {
-        '#anatomy':    '#what-is',
-        '#flow':       '#how-it-works',
-        '#industries': '#case-studies',
-      };
-
-      // Якоря, которые больше не существуют — просто убираем
+      var renames = { '#anatomy': '#what-is', '#flow': '#how-it-works', '#industries': '#case-studies' };
       var deprecated = ['#comparison', '#value', '#integrations', '#deployment', '#security'];
-
-      if (renames[hash]) {
-        history.replaceState(null, '', renames[hash]);
-      } else if (deprecated.indexOf(hash) !== -1) {
-        history.replaceState(null, '', window.location.pathname);
-      }
+      if (renames[hash]) history.replaceState(null, '', renames[hash]);
+      else if (deprecated.indexOf(hash) !== -1) history.replaceState(null, '', window.location.pathname);
     })();
   </script>
 
@@ -38,20 +26,24 @@
   <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
   <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
+  <!-- Shared: icons, brand mark -->
+  <script src="../components/scenarios.js"></script>
+  <script type="text/babel" src="../components/icons.jsx"></script>
+  <script type="text/babel" src="../components/Brand.jsx"></script>
+
+  <!-- EN-specific components -->
   <script src="components/scenarios.js"></script>
-  <script type="text/babel" src="components/icons.jsx"></script>
-  <script type="text/babel" src="components/Brand.jsx"></script>
-  <script type="text/babel" src="components/Nav.jsx?v=5"></script>
+  <script type="text/babel" src="components/Nav.jsx?v=2"></script>
   <script type="text/babel" src="components/Hero.jsx"></script>
   <script type="text/babel" src="components/Stats.jsx"></script>
-  <script type="text/babel" src="components/Anatomy.jsx?v=2"></script>
+  <script type="text/babel" src="components/Anatomy.jsx"></script>
   <script type="text/babel" src="components/Transformations.jsx"></script>
   <script type="text/babel" src="components/Tracks.jsx"></script>
-  <script type="text/babel" src="components/Flow.jsx?v=6"></script>
-  <script type="text/babel" src="components/Cases.jsx?v=11"></script>
+  <script type="text/babel" src="components/Flow.jsx"></script>
+  <script type="text/babel" src="components/Cases.jsx"></script>
   <script type="text/babel" src="components/Team.jsx"></script>
   <script type="text/babel" src="components/Testimonials.jsx"></script>
-  <script type="text/babel" src="components/CTA.jsx?v=5"></script>
+  <script type="text/babel" src="components/CTA.jsx"></script>
 
   <script type="text/babel">
     function App() {
@@ -74,17 +66,13 @@
     }
     ReactDOM.createRoot(document.getElementById("app")).render(<App />);
 
-    // После рендера React скролим к якорю (для ссылок с других страниц типа /privacy).
-    // Babel + React могут занять время, поэтому поллим DOM пока элемент не появится.
+    // Scroll to hash after React renders (polling until element appears).
     (function scrollToHash() {
       const hash = window.location.hash;
       if (!hash) return;
       const el = document.querySelector(hash);
-      if (el) {
-        el.scrollIntoView({ behavior: 'auto' });
-      } else {
-        setTimeout(scrollToHash, 80);
-      }
+      if (el) { el.scrollIntoView({ behavior: 'auto' }); }
+      else { setTimeout(scrollToHash, 80); }
     })();
   </script>
 </body>
