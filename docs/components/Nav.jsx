@@ -107,6 +107,9 @@ function Nav() {
             Записаться на демо <IArrow size={14} />
           </a>
         </div>
+        <a className="nav__drawer-privacy" href="privacy/" onClick={close}>
+          Политика конфиденциальности
+        </a>
       </div>
     </header>
   );

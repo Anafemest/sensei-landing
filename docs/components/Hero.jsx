@@ -71,6 +71,7 @@ function AgentTerminal() {
   const [typed, setTyped]   = React.useState(0);
   const [revealed, setRev]  = React.useState(0);
   const [direction, setDir] = React.useState(1); // for slide animation key
+  const bodyRef             = React.useRef(null);
 
   const scenario = SCENARIOS[sIdx] || SCENARIOS[0];
   const totalChars = React.useMemo(
@@ -120,6 +121,12 @@ function AgentTerminal() {
     }
     return () => clearTimeout(timer);
   }, [phase, typed, revealed, scenario, totalChars, SCENARIOS.length]);
+
+  // Auto-scroll terminal to bottom when new content appears
+  React.useEffect(() => {
+    const el = bodyRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [phase, revealed]);
 
   // Render user message with progressive typing
   const renderMessage = () => {
@@ -172,7 +179,7 @@ function AgentTerminal() {
         </span>
       </div>
 
-      <div className="terminal__body" key={direction}>
+      <div className="terminal__body" key={direction} ref={bodyRef}>
         {/* User message */}
         {phase !== "idle" && (
           <div className="msg">

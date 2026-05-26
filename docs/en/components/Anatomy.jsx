@@ -35,37 +35,38 @@ function Anatomy() {
         </div>
 
         <div className="anatomy">
-          <div className="anatomy__rings">
-            <div className="anatomy__ring anatomy__ring--perimeter">
-              <span className="anatomy__perimeter-label">company perimeter</span>
+          <div className="anatomy__diagram">
+            <div className="anatomy__rings">
+              <div className="anatomy__ring anatomy__ring--perimeter" />
+              <div className="anatomy__ring anatomy__ring--outer" />
+              <div className="anatomy__ring anatomy__ring--mid" />
+              <div className="anatomy__ring anatomy__ring--inner" />
             </div>
-            <div className="anatomy__ring anatomy__ring--outer" />
-            <div className="anatomy__ring anatomy__ring--mid" />
-            <div className="anatomy__ring anatomy__ring--inner" />
-          </div>
-          <div className="anatomy__core"><span>Sensei.</span></div>
+            <span className="anatomy__perimeter-label">company perimeter</span>
+            <div className="anatomy__core"><span>Sensei.</span></div>
 
-          {[{ ratio: 0.46, mod: "inner" }, { ratio: 0.78, mod: "outer" }].map(({ ratio, mod }) => (
-            <div key={mod} className={`anatomy__orbit anatomy__orbit--${mod}`}>
-              {nodes.filter(n => n.ratio === ratio).map(({ label, angle, brand }) => {
-                const rad = (angle * Math.PI) / 180;
-                const r = ratio * center;
-                const x = r * Math.cos(rad);
-                const y = r * Math.sin(rad);
-                return (
-                  <div key={label} className={`anatomy__node${brand ? " anatomy__node--brand" : ""}`}
-                       style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}>
-                    {brand && (
-                      <span className="anatomy__node-icon" style={{ background: brand.bg, color: brand.fg }}>
-                        {brand.glyph}
-                      </span>
-                    )}
-                    <span className="anatomy__node-label">{label}</span>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+            {[{ ratio: 0.46, mod: "inner" }, { ratio: 0.78, mod: "outer" }].map(({ ratio, mod }) => (
+              <div key={mod} className={`anatomy__orbit anatomy__orbit--${mod}`}>
+                {nodes.filter(n => n.ratio === ratio).map(({ label, angle, brand }) => {
+                  const rad = (angle * Math.PI) / 180;
+                  const r = ratio * center;
+                  const x = r * Math.cos(rad);
+                  const y = r * Math.sin(rad);
+                  return (
+                    <div key={label} className={`anatomy__node${brand ? " anatomy__node--brand" : ""}`}
+                         style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}>
+                      {brand && (
+                        <span className="anatomy__node-icon" style={{ background: brand.bg, color: brand.fg }}>
+                          {brand.glyph}
+                        </span>
+                      )}
+                      <span className="anatomy__node-label">{label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

@@ -14,6 +14,27 @@ const TRACKS = [
 ];
 
 function Tracks() {
+  React.useEffect(() => {
+    if (window.innerWidth > 760) return;
+    const rows = [...document.querySelectorAll('.track-row')];
+    if (!rows.length) return;
+
+    const update = () => {
+      const mid = window.innerHeight / 2;
+      let closest = null, minDist = Infinity;
+      rows.forEach(row => {
+        const r = row.getBoundingClientRect();
+        const dist = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (dist < minDist) { minDist = dist; closest = row; }
+      });
+      rows.forEach(row => row.classList.toggle('is-active', row === closest));
+    };
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
   return (
     <section className="section" id="tracks">
       <div className="container">

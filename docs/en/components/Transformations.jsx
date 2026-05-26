@@ -66,10 +66,16 @@ function Transformations() {
     const cards = stack ? [...stack.querySelectorAll(".xform")] : [];
     const lastCard = cards[cards.length - 1];
     const HEAD_TOP = 110;
+    const MOBILE_TOP = 96;
+    const MOBILE_BP = 700;
     let stackTop = HEAD_TOP;
 
+    const isMobile = () => window.innerWidth <= MOBILE_BP;
+
     const updateStackTop = () => {
-      stackTop = HEAD_TOP + head.offsetHeight + 32;
+      stackTop = isMobile()
+        ? MOBILE_TOP
+        : HEAD_TOP + head.offsetHeight + 32;
       section.style.setProperty("--xforms-stack-top", `${stackTop}px`);
     };
     updateStackTop();
@@ -84,10 +90,10 @@ function Transformations() {
       const threshold = lastCardStickyTop + lastCard.offsetHeight;
       if (wrapBottom < threshold) {
         const delta = threshold - wrapBottom;
-        head.style.top = `${HEAD_TOP - delta}px`;
+        if (!isMobile()) head.style.top = `${HEAD_TOP - delta}px`;
         cards.forEach((card, idx) => { card.style.top = `${stackTop + idx * 32 - delta}px`; });
       } else {
-        head.style.top = "";
+        if (!isMobile()) head.style.top = "";
         cards.forEach(c => { c.style.top = ""; });
       }
     };

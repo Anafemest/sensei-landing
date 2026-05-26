@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Политика в отношении обработки персональных данных — Sensei</title>
   <link rel="stylesheet" href="../styles.css">
-  <link rel="stylesheet" href="privacy.css?v=9">
+  <link rel="stylesheet" href="privacy.css?v=10">
 </head>
 <body>
   <div class="page">
@@ -65,6 +65,55 @@
           <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </a>
+
+      <!-- Mobile hamburger -->
+      <button class="nav__burger" id="privBurger" aria-label="Открыть меню" aria-expanded="false">
+        <svg id="privIconMenu" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+        <svg id="privIconClose" width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" style="display:none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </button>
+
+      <!-- Mobile drawer: table of contents -->
+      <div class="nav__drawer" id="privDrawer" aria-hidden="true">
+        <a class="nav__drawer-link" href="#s1"  onclick="closePrivMenu()">1. Назначение и область действия</a>
+        <a class="nav__drawer-link" href="#s2"  onclick="closePrivMenu()">2. Условия обработки. Принципы</a>
+        <a class="nav__drawer-link" href="#s3"  onclick="closePrivMenu()">3. Состав, цели и способы обработки</a>
+        <a class="nav__drawer-link" href="#s4"  onclick="closePrivMenu()">4. Специальные категории данных</a>
+        <a class="nav__drawer-link" href="#s5"  onclick="closePrivMenu()">5. Данные, разрешённые для распространения</a>
+        <a class="nav__drawer-link" href="#s6"  onclick="closePrivMenu()">6. Биометрические данные</a>
+        <a class="nav__drawer-link" href="#s7"  onclick="closePrivMenu()">7. Поручение обработки третьему лицу</a>
+        <a class="nav__drawer-link" href="#s8"  onclick="closePrivMenu()">8. Трансграничная передача</a>
+        <a class="nav__drawer-link" href="#s9"  onclick="closePrivMenu()">9. Права субъекта</a>
+        <a class="nav__drawer-link" href="#s10" onclick="closePrivMenu()">10. Хранение и обязанности оператора</a>
+        <a class="nav__drawer-link" href="#s11" onclick="closePrivMenu()">11. Меры безопасности</a>
+        <a class="nav__drawer-link" href="#s12" onclick="closePrivMenu()">12. Дополнительные условия</a>
+        <div class="nav__drawer-bottom">
+          <a class="nav__drawer-cta" href="../index.html#top" onclick="closePrivMenu()">← На главную</a>
+        </div>
+      </div>
+
+      <script>
+        function closePrivMenu() {
+          document.getElementById('privDrawer').classList.remove('nav__drawer--open');
+          document.getElementById('privDrawer').setAttribute('aria-hidden', 'true');
+          document.getElementById('privBurger').setAttribute('aria-expanded', 'false');
+          document.getElementById('privIconMenu').style.display = '';
+          document.getElementById('privIconClose').style.display = 'none';
+        }
+        document.getElementById('privBurger').addEventListener('click', function() {
+          var open = document.getElementById('privDrawer').classList.toggle('nav__drawer--open');
+          document.getElementById('privDrawer').setAttribute('aria-hidden', String(!open));
+          this.setAttribute('aria-expanded', String(open));
+          document.getElementById('privIconMenu').style.display  = open ? 'none' : '';
+          document.getElementById('privIconClose').style.display = open ? ''     : 'none';
+        });
+        document.addEventListener('click', function(e) {
+          if (!e.target.closest('.nav')) closePrivMenu();
+        });
+      </script>
     </header>
 
     <main class="privacy">

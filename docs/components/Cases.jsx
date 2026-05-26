@@ -471,6 +471,26 @@ function Cases() {
     return () => window.removeEventListener("hashchange", tryOpen);
   }, []);
 
+  // Scroll-based active highlight on mobile
+  React.useEffect(() => {
+    if (window.innerWidth > 1080) return;
+    const cards = Array.from(document.querySelectorAll('#case-studies .case-card'));
+    if (!cards.length) return;
+    const update = () => {
+      const mid = window.innerHeight / 2;
+      let closest = null, minDist = Infinity;
+      cards.forEach(card => {
+        const r = card.getBoundingClientRect();
+        const dist = Math.abs((r.top + r.bottom) / 2 - mid);
+        if (dist < minDist) { minDist = dist; closest = card; }
+      });
+      cards.forEach(card => card.classList.toggle('is-active', card === closest));
+    };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    return () => window.removeEventListener('scroll', update);
+  }, []);
+
   return (
     <section className="section" id="case-studies">
       <div className="container">

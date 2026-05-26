@@ -4,7 +4,7 @@
    Terminal, footer and CTA shell stay dark for contrast/drama.
    ============================================================= */
 
-@import url("./colors_and_type.css");
+@import url("../colors_and_type.css");
 
 * { box-sizing: border-box; }
 html, body { margin: 0; max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
@@ -324,12 +324,17 @@ a { color: inherit; text-decoration: none; }
   display: grid; gap: 14px;
   font-size: 13.5px;
   line-height: 1.55;
-  /* Min height — sized to the tallest scenario (5 statuses + bullet list)
-     so the box doesn't jump between cases, but no empty padding below. */
-  min-height: 470px;
+  /* Fixed height — keeps the window stable across scenarios and animations */
+  height: 470px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
   grid-auto-rows: min-content;
   align-content: start;
 }
+.terminal__body::-webkit-scrollbar { width: 4px; }
+.terminal__body::-webkit-scrollbar-track { background: transparent; }
+.terminal__body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+.terminal__body::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.28); }
 
 /* Role strip — shows which Sensei agent is active + progress dots */
 .terminal__role {
@@ -634,6 +639,14 @@ a { color: inherit; text-decoration: none; }
   height: 540px;
   max-width: 920px; margin: 0 auto;
 }
+/* Fixed 720×720 coordinate space — scaled as a unit on mobile so
+   rings and orbit node positions always stay in sync. */
+.anatomy__diagram {
+  position: absolute;
+  width: 720px; height: 720px;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+}
 .anatomy__rings {
   position: absolute; inset: 0;
   display: grid; place-items: center;
@@ -723,14 +736,17 @@ a { color: inherit; text-decoration: none; }
 .anatomy__node-icon svg { display: block; }
 .anatomy__perimeter-label {
   position: absolute;
+  /* Desktop: right edge of the 720×720 wrapper, vertically centred */
   top: 50%; right: -6px;
-  transform: translateY(-50%) rotate(0deg);
+  transform: translateY(-50%);
   background: #fff;
   border: 1px solid rgba(106, 53, 244, 0.25);
   padding: 6px 12px; border-radius: 999px;
   font-size: 10px; font-weight: 800;
   letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--primary);
+  z-index: 10;
+  white-space: nowrap;
 }
 
 /* Orbiting node groups — each orbit rotates as a unit and the nodes inside
@@ -1019,13 +1035,15 @@ a { color: inherit; text-decoration: none; }
 
 @media (max-width: 760px) {
   .track-row {
-    grid-template-columns: 44px 1fr;
-    gap: 14px 16px;
-    padding: 22px 8px;
+    grid-template-columns: 36px 1fr;
+    gap: 8px 10px;
+    padding: 20px 16px 20px 20px;
+    transition: background .3s ease;
   }
   .track-row__num { grid-row: 1 / span 2; align-self: start; }
   .track-row__title { grid-column: 2; }
   .track-row__desc { grid-column: 2; }
+  .track-row.is-active { background: rgba(106, 53, 244, 0.05); }
 }
 
 /* ── How it works — sticky scroll section ───────────────────── */
@@ -2646,6 +2664,16 @@ body.modal-open {
   transform: translateY(-1px);
   box-shadow: 0 10px 24px rgba(106, 53, 244, 0.42);
 }
+.nav__drawer-privacy {
+  display: block;
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 10px 6px 4px;
+  opacity: 0.7;
+  transition: opacity .2s;
+}
+.nav__drawer-privacy:hover { opacity: 1; color: var(--primary); }
 
 /* ── Responsive ─────────────────────────────────────────────── */
 
@@ -2656,21 +2684,95 @@ body.modal-open {
   .nav__cta      { display: none; }
   .nav__burger   { display: inline-flex; }
 
-  /* Hero: less top padding when layout goes single-column */
-  .hero { padding-top: 24px; }
+  /* Hero: tighter padding in single-column layout */
+  .hero { padding-top: 24px; padding-bottom: 48px; }
+  .hero__metrics { grid-template-columns: 1fr; }
+
+  /* Stats / logo strip: compact on mobile */
+  .stats { padding: 20px 0 16px; }
+  .logo  { width: 88px; height: 30px; }
+  .stats__set { gap: 28px; padding-right: 28px; }
 
   .hero__grid { grid-template-columns: 1fr; gap: 36px; }
-  .terminal__body { min-height: 420px; }
+  .terminal__body { height: 420px; overflow-y: auto; scroll-behavior: smooth; }
   .xforms { grid-template-columns: 1fr; }
-  .flow { grid-template-columns: 1fr 1fr; }
+  /* Flow: vertical stacked blocks on tablet + mobile */
+  #tracks .section__head { margin-bottom: 20px; }
+  #how-it-works .section__head { margin-bottom: 20px; }
+  #case-studies .section__head { margin-bottom: 20px; }
+  #team .section__head { margin-bottom: 20px; }
+  .sec-standards { margin-top: 36px; }
+  #how-it-works { padding-top: 40px; padding-bottom: 0; }
+  #case-studies { padding-bottom: 0; }
+  #team { padding-top: 40px; }
+  /* Halve spacing before and after the testimonials slider */
+  #testimonials .section__head { margin-bottom: 28px; }
+  .cta { padding-top: 40px; }
+  /* Scroll-based active highlight for case cards and team cards */
+  .case-card { transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+  .case-card.is-active {
+    transform: translateY(-4px);
+    border-color: rgba(106, 53, 244, 0.32);
+    box-shadow: 0 22px 52px rgba(106, 53, 244, 0.16);
+  }
+  .case-card.is-active .case-card__bignum {
+    transform: translate(8%, -6%) scale(1.04);
+    opacity: 0.18;
+  }
+  .case-card.is-active .case-card__more svg { transform: translateX(3px); }
+  .team-card { transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; }
+  .team-card.is-active {
+    transform: translateY(-4px);
+    border-color: rgba(106, 53, 244, 0.26);
+    box-shadow: 0 22px 52px rgba(106, 53, 244, 0.16);
+  }
+  .team-card.is-active .team-card__photo img { transform: scale(1.05); }
+  #how-it-works .flow-sticky-frame { padding: 0 0 20px; }
+  .flow-security { padding-top: 48px; }
+  .flow { display: flex; flex-direction: column; gap: 0; }
   .flow::before { display: none; }
+  .flow__progress { display: none; }
+  .flow__step {
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 0 14px;
+    align-items: start;
+    padding-bottom: 32px;
+    position: relative;
+  }
+  .flow__step:last-child { padding-bottom: 0; }
+  /* Vertical connector line between steps */
+  .flow__step::after {
+    content: '';
+    position: absolute;
+    left: 26px;
+    top: 56px;
+    bottom: 0;
+    width: 2px;
+    background: rgba(106, 53, 244, 0.15);
+    z-index: 0;
+  }
+  .flow__step:last-child::after { display: none; }
+  .flow__step.lit::after {
+    background: linear-gradient(to bottom, var(--primary) 50%, rgba(106,53,244,0.15) 100%);
+  }
+  .flow__dot { width: 54px; height: 54px; margin: 0; }
+  .flow__body { min-height: auto; transform: translateX(10px); }
+  .flow__step.lit .flow__body { transform: translateX(0); }
   .sec-row { grid-template-columns: 1fr; }
   .sec-standards { grid-template-columns: 1fr; gap: 22px; padding: 28px 24px; }
   .sec-standards__grid { grid-template-columns: 1fr 1fr; }
   .sec-faq__grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: 1fr 1fr; }
-  .quotes { margin-inline: -14px; padding-inline: 14px; }
-  .quote { width: min(82vw, 360px); }
+  /* 1. Gap after team, before testimonials */
+  #team { padding-bottom: 0; }
+  #testimonials { padding-top: 40px; padding-bottom: 0; }
+  /* 2+3. Smaller font + tighter inner padding in quote cards */
+  .quotes { margin-inline: -14px; padding-inline: 14px; padding-top: 16px; padding-bottom: 20px; }
+  .quote { width: min(82vw, 360px); padding: 20px 18px 16px; gap: 12px; }
+  .quote__text { font-size: 0.88rem; line-height: 1.5; }
+  .quote__author { padding-top: 10px; gap: 10px; }
+  .quote__avatar { width: 42px; height: 42px; border-radius: 10px; }
   .cta__grid { grid-template-columns: 1fr; gap: 32px; }
   .case-grid { grid-template-columns: 1fr 1fr; }
   .case-modal__header { padding: 18px 20px 18px 28px; }
@@ -2688,15 +2790,47 @@ body.modal-open {
 @media (max-width: 700px) {
   .container { width: calc(100% - 28px); }
   .section { padding: 64px 0; }
+
+  /* Tighter bottom padding after the xforms stack */
+  .xforms-section { padding: 56px 0 28px; }
+  /* On mobile: heading scrolls away, only cards stick */
+  #xforms .section__head { position: static; }
+  #xforms .section__head h2 span { white-space: normal !important; }
   .tracks { grid-template-columns: 1fr; }
   .case-grid { grid-template-columns: 1fr; }
   .team-grid { grid-template-columns: 1fr; }
   .cta__shell { padding: 32px 22px; border-radius: 24px; }
-  .anatomy { height: 380px; }
-  .anatomy__core { width: 140px; height: 140px; font-size: 22px; }
-  .anatomy__ring--inner { width: 200px; height: 200px; }
-  .anatomy__ring--mid { width: 290px; height: 290px; }
-  .anatomy__ring--outer { width: 360px; height: 360px; }
-  .anatomy__ring--perimeter { width: 420px; height: 420px; }
+  /* Anatomy: scale the whole 720×720 diagram as a unit so rings and
+     orbit node positions always stay in sync (0.583 ≈ 420/720).
+     Nodes counter-scale by 1/0.583 ≈ 1.716 to stay readable. */
+  #what-is { padding: 40px 0; }
+  #what-is .section__head { margin-bottom: 24px; }
+  .anatomy { height: 454px; }
+  #tracks { padding-top: 28px; padding-bottom: 20px; }
+  #tracks .tracks-cta { margin-top: 20px; }
+  .section h2 { font-size: 1.75rem; }
+  #tracks .section__head h2 { white-space: normal; }
+  /* Move label to bottom centre of the 720×720 wrapper and counter-scale
+     so it renders at normal size despite the 0.583 parent scale */
+  .anatomy__perimeter-label {
+    top: auto; right: auto;
+    bottom: -16px; left: 50%;
+    transform-origin: center bottom;
+    transform: translateX(-50%) scale(1.716);
+    font-size: 13px;
+    padding: 8px 18px;
+  }
+  .anatomy__diagram { transform: translate(-50%, -50%) scale(0.583); }
+  .anatomy__orbit--inner .anatomy__node { animation-name: anatomy-node-ccw-sm; }
+  .anatomy__orbit--outer .anatomy__node { animation-name: anatomy-node-cw-sm; }
   .footer__grid { grid-template-columns: 1fr; }
+}
+
+@keyframes anatomy-node-cw-sm {
+  from { transform: translate(-50%, -50%) scale(1.716) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) scale(1.716) rotate(360deg); }
+}
+@keyframes anatomy-node-ccw-sm {
+  from { transform: translate(-50%, -50%) scale(1.716) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) scale(1.716) rotate(-360deg); }
 }

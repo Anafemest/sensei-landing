@@ -82,37 +82,42 @@ function Transformations() {
     const stack = section.querySelector('.xforms-stack');
     const cards = stack ? [...stack.querySelectorAll('.xform')] : [];
     const lastCard = cards[cards.length - 1];
-    const HEAD_TOP = 110; // matches CSS: position:sticky; top:110px
+    const HEAD_TOP = 110;    // desktop: cards stack below sticky heading
+    const MOBILE_TOP = 96;   // mobile: cards stick just below nav with gap
+    const MOBILE_BP = 700;
     let stackTop = HEAD_TOP;
 
-    // 1. Measure heading, set --xforms-stack-top so cards know where to pile
+    const isMobile = () => window.innerWidth <= MOBILE_BP;
+
+    // 1. Measure heading, set --xforms-stack-top so cards know where to pile.
+    //    On mobile the heading is static — cards stack from nav bottom instead.
     const updateStackTop = () => {
-      stackTop = HEAD_TOP + head.offsetHeight + 32; // 32 = margin-bottom
+      stackTop = isMobile()
+        ? MOBILE_TOP
+        : HEAD_TOP + head.offsetHeight + 32; // 32 = margin-bottom
       section.style.setProperty('--xforms-stack-top', `${stackTop}px`);
     };
     updateStackTop();
     window.addEventListener('resize', updateStackTop);
 
     // 2. When the last card starts scrolling off its sticky position,
-    //    move the heading by the same delta so they exit together.
+    //    move the heading (desktop only) by the same delta so they exit together.
     const onScroll = () => {
       if (!lastCard) return;
       const wrap = head.parentElement; // .xforms-wrap
       const wrapBottom = wrap.getBoundingClientRect().bottom;
-      const lastI = cards.length - 1;           // --i of last card
+      const lastI = cards.length - 1;
       const lastCardStickyTop = stackTop + lastI * 32;
       const threshold = lastCardStickyTop + lastCard.offsetHeight;
 
       if (wrapBottom < threshold) {
         const delta = threshold - wrapBottom;
-        // Shift sticky `top` down by delta — every element moves at exactly
-        // 1px per scroll px regardless of its own natural-exit state.
-        head.style.top = `${HEAD_TOP - delta}px`;
+        if (!isMobile()) head.style.top = `${HEAD_TOP - delta}px`;
         cards.forEach((card, idx) => {
           card.style.top = `${stackTop + idx * 32 - delta}px`;
         });
       } else {
-        head.style.top = '';
+        if (!isMobile()) head.style.top = '';
         cards.forEach(c => { c.style.top = ''; });
       }
     };

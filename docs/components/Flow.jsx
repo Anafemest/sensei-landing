@@ -89,6 +89,23 @@ function Flow() {
     const security = securityRef.current;
     if (!outer || !frame || !security) return;
 
+    // ── Tablet/mobile (≤1080px): vertical layout, simple scroll highlight ──
+    if (window.innerWidth <= 1080) {
+      const steps = Array.from(outer.querySelectorAll('.flow__step'));
+      const update = () => {
+        const trigger = window.innerHeight * 0.65;
+        let count = 0;
+        steps.forEach(step => {
+          if (step.getBoundingClientRect().top < trigger) count++;
+        });
+        setLitCount(Math.max(1, count));
+      };
+      update();
+      window.addEventListener('scroll', update, { passive: true });
+      return () => window.removeEventListener('scroll', update);
+    }
+
+    // ── Desktop/tablet: sticky scroll-budget animation ──
     // Outer section height = frame + security + scroll budget.
     // Both children sit in normal flow initially (frame on top, security below),
     // so the page looks correct before the section enters the viewport.
