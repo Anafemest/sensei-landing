@@ -4,7 +4,7 @@
    Terminal, footer and CTA shell stay dark for contrast/drama.
    ============================================================= */
 
-@import url("../colors_and_type.css");
+@import url("./colors_and_type.css");
 
 * { box-sizing: border-box; }
 html, body { margin: 0; max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
