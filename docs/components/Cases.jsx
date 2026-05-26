@@ -313,26 +313,6 @@ function CaseModal({ caseData, onClose }) {
               <p>{c.context}</p>
             </section>
 
-            {/* CTA */}
-            <div className="case-cta">
-              <p className="case-cta__label">Хотите внедрить это у себя?</p>
-              <button
-                className="case-cta__btn"
-                onClick={() => {
-                  onClose();
-                  setTimeout(() => {
-                    const form = document.getElementById("form");
-                    if (form) form.scrollIntoView({ behavior: "smooth" });
-                  }, 180);
-                }}
-              >
-                Запросить демо
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2"
-                        strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-            </div>
           </aside>
 
           {/* Right panel with custom scrollbar */}
@@ -410,6 +390,27 @@ function CaseModal({ caseData, onClose }) {
                 {c.changed}
               </blockquote>
             </section>
+
+            {/* CTA — always at the very bottom */}
+            <div className="case-cta">
+              <p className="case-cta__label">Хотите внедрить это у себя?</p>
+              <button
+                className="case-cta__btn"
+                onClick={() => {
+                  onClose();
+                  setTimeout(() => {
+                    const form = document.getElementById("form");
+                    if (form) form.scrollIntoView({ behavior: "smooth" });
+                  }, 180);
+                }}
+              >
+                Запросить демо
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2"
+                        strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
 
           </div>{/* end .case-modal__right-scroll */}
 

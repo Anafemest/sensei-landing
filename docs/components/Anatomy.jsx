@@ -1,19 +1,9 @@
 // Anatomy section — the perimeter diagram with Sensei at the core
 // and connected systems orbiting around. The whole thing renders with CSS positions.
 
-// Tiny paper-plane glyph used for Telegram — iconic enough on its own.
-function PaperPlane() {
-  return (
-    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-      <path d="M21 3 2 11l7 2 2 7 4-5 5 4 1-16Z" fill="#fff" />
-    </svg>
-  );
-}
-
 function Anatomy() {
   // Inner ring — generic internal system categories.
-  // Outer ring — recognizable everyday tools, each rendered with a
-  // brand-coloured tile so they're scannable at a glance.
+  // Outer ring — real tool logos from assets/logos/.
   // node = { label, ratio (0=center, 1=perimeter), angle in deg, brand? }
   const nodes = [
     { label: "CRM",      ratio: 0.46, angle: 200 },
@@ -22,13 +12,13 @@ function Anatomy() {
     { label: "NetBox",   ratio: 0.46, angle: 110 },
 
     { label: "Jira",     ratio: 0.78, angle:  65,
-      brand: { bg: "#2684FF", fg: "#fff", glyph: "J" } },
+      brand: { bg: "#fff", logo: "assets/logos/jira.svg" } },
     { label: "Telegram", ratio: 0.78, angle: 155,
-      brand: { bg: "#26A5E4", fg: "#fff", glyph: <PaperPlane /> } },
+      brand: { bg: "#fff", logo: "assets/logos/telegram.svg" } },
     { label: "Trello",   ratio: 0.78, angle: 245,
-      brand: { bg: "#0052CC", fg: "#fff", glyph: "T" } },
+      brand: { bg: "#fff", logo: "assets/logos/trello.svg" } },
     { label: "Miro",     ratio: 0.78, angle: 335,
-      brand: { bg: "#FFD02F", fg: "#050038", glyph: "M" } },
+      brand: { bg: "#fff", logo: "assets/logos/miro.svg" } },
   ];
 
   // The diagram is rendered inside a 720×720 conceptual box.
@@ -87,9 +77,10 @@ function Anatomy() {
                       {brand && (
                         <span
                           className="anatomy__node-icon"
-                          style={{ background: brand.bg, color: brand.fg }}
+                          style={{ background: brand.bg }}
                         >
-                          {brand.glyph}
+                          <img src={brand.logo} alt={label} width="18" height="18"
+                               style={{ display: "block", objectFit: "contain" }} />
                         </span>
                       )}
                       <span className="anatomy__node-label">{label}</span>

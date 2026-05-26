@@ -1,47 +1,93 @@
 // Final CTA + lead form block.
 
+const WEBHOOK_URL = "https://robot.icerock.dev/webhook/73704b14-4228-46b7-93ce-94317856a02b";
+
 function CTA() {
-  const [sent, setSent] = React.useState(false);
-  const [phone, setPhone] = React.useState("");
+  const [sent, setSent]       = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [errored, setErrored] = React.useState(false);
+  const [name, setName]       = React.useState("");
+  const [email, setEmail]     = React.useState("");
+  const [task, setTask]       = React.useState("");
+  const [phone, setPhone]     = React.useState("");
+
+  // Pre-fill task from block 05 (CustomTaskCard) — via localStorage on mount
+  // and via custom event for real-time sync while user is still on the page.
+  React.useEffect(() => {
+    const saved = localStorage.getItem("sensei_custom_task");
+    if (saved) setTask(saved);
+
+    const onTaskChange = (e) => setTask(e.detail);
+    window.addEventListener("sensei-task-change", onTaskChange);
+    return () => window.removeEventListener("sensei-task-change", onTaskChange);
+  }, []);
 
   const handlePhoneChange = (e) => {
-    let value = e.target.value;
-    
-    // Remove all non-digit characters except + at the start
-    const digitsOnly = value.replace(/\D/g, '');
-    
-    if (!digitsOnly) {
-      setPhone("");
-      return;
+    const digitsOnly = e.target.value.replace(/\D/g, '');
+    if (!digitsOnly) { setPhone(""); return; }
+    let d = digitsOnly.startsWith('8') ? '7' + digitsOnly.slice(1)
+          : digitsOnly.startsWith('7') ? digitsOnly
+          : '7' + digitsOnly;
+    let fmt = '+' + d;
+    if (d.length >= 2) fmt = '+' + d[0] + ' (' + d.slice(1, 4);
+    if (d.length >= 5) fmt += ') ' + d.slice(4, 7);
+    if (d.length >= 8) fmt += '-' + d.slice(7, 9);
+    if (d.length >= 10) fmt += '-' + d.slice(9, 11);
+    setPhone(fmt);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrored(false);
+
+    const now = new Date().toISOString();
+    const payload = {
+      form: {
+        name,
+        email,
+        phone,
+        task: task || "",
+      },
+      page: {
+        url:       window.location.href,
+        pathname:  window.location.pathname,
+        title:     document.title,
+        timestamp: now,
+      },
+      referrer: {
+        value:    document.referrer || "",
+        hostname: (() => {
+          try { return document.referrer ? new URL(document.referrer).hostname : ""; }
+          catch { return ""; }
+        })(),
+      },
+      technical: {
+        submittedAt: now,
+        timezone:    Intl.DateTimeFormat().resolvedOptions().timeZone,
+        userAgent:   navigator.userAgent,
+        language:    navigator.language,
+        screen:   { width: screen.width,      height: screen.height },
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+      },
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload),
+      });
+      if (res.ok) {
+        setSent(true);
+      } else {
+        setErrored(true);
+      }
+    } catch {
+      setErrored(true);
+    } finally {
+      setLoading(false);
     }
-    
-    // If user started with 8, replace with 7 (for Russian numbers)
-    let normalizedDigits = digitsOnly;
-    if (digitsOnly.startsWith('8')) {
-      normalizedDigits = '7' + digitsOnly.slice(1);
-    } else if (digitsOnly.startsWith('7')) {
-      normalizedDigits = digitsOnly;
-    } else {
-      // User typing just digits (9XXXXXXXXXX) - prepend 7
-      normalizedDigits = '7' + digitsOnly;
-    }
-    
-    // Format: +7 (XXX) XXX-XX-XX
-    let formatted = '+' + normalizedDigits;
-    if (normalizedDigits.length >= 2) {
-      formatted = '+' + normalizedDigits.slice(0, 1) + ' (' + normalizedDigits.slice(1, 4);
-    }
-    if (normalizedDigits.length >= 5) {
-      formatted += ') ' + normalizedDigits.slice(4, 7);
-    }
-    if (normalizedDigits.length >= 8) {
-      formatted += '-' + normalizedDigits.slice(7, 9);
-    }
-    if (normalizedDigits.length >= 10) {
-      formatted += '-' + normalizedDigits.slice(9, 11);
-    }
-    
-    setPhone(formatted);
   };
 
   return (
@@ -72,24 +118,33 @@ function CTA() {
               <div className={`form-panel__success${sent ? " show" : ""}`}>
                 <b>Спасибо!</b> Заявка получена, свяжемся с вами в ближайшее время.
               </div>
-              <form onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form onSubmit={handleSubmit}>
                 <label><span>Имя</span>
-                  <input required type="text" placeholder="Как вас зовут?" /></label>
+                  <input required type="text" placeholder="Как вас зовут?"
+                    value={name} onChange={e => setName(e.target.value)} /></label>
                 <label><span>Email</span>
-                  <input required type="email" placeholder="work@company.com" /></label>
+                  <input required type="email" placeholder="work@company.com"
+                    value={email} onChange={e => setEmail(e.target.value)} /></label>
                 <label><span>Телефон</span>
-                  <input 
-                    required 
-                    type="tel" 
-                    placeholder="+7 (___) ___-__-__" 
-                    value={phone}
-                    onChange={handlePhoneChange}
+                  <input required type="tel" placeholder="+7 (___) ___-__-__"
+                    value={phone} onChange={handlePhoneChange} /></label>
+                <label><span>Ваша задача <em style={{fontStyle:"normal",opacity:.55,fontWeight:400}}>— необязательно</em></span>
+                  <textarea
+                    placeholder="Опишите процесс, который хотите автоматизировать"
+                    rows={3}
+                    value={task}
+                    onChange={e => setTask(e.target.value)}
                   /></label>
                 <p className="form-panel__promise">
                   Позвоним в течение часа, подготовим сценарий под ваш процесс.
                 </p>
-                <button className="form-panel__submit" type="submit">
-                  Отправить заявку
+                {errored && (
+                  <p style={{color:"#e05",fontSize:"13px",margin:"-4px 0 8px"}}>
+                    Не удалось отправить заявку. Попробуйте ещё раз или напишите нам напрямую.
+                  </p>
+                )}
+                <button className="form-panel__submit" type="submit" disabled={loading}>
+                  {loading ? "Отправляем…" : "Отправить заявку"}
                 </button>
                 <p className="form-panel__fineprint">
                   Отправляя форму, вы соглашаетесь с{" "}

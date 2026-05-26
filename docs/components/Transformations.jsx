@@ -35,14 +35,17 @@ function CustomTaskCard() {
     const value = e.target.value;
     setTask(value);
     localStorage.setItem("sensei_custom_task", value);
+    // Notify CTA form in real time (same-page sync)
+    window.dispatchEvent(new CustomEvent("sensei-task-change", { detail: value }));
   };
 
   const handleSubmit = () => {
-    // Scroll to form at bottom
-    const form = document.getElementById("form");
-    if (form) {
-      form.scrollIntoView({ behavior: "smooth" });
-    }
+    // Scroll to the name input and focus it (same logic as Nav scrollToForm)
+    const input = document.querySelector('#form .form-panel input[type="text"]');
+    if (!input) return;
+    const top = input.getBoundingClientRect().top + window.scrollY - 100;
+    window.scrollTo({ top, behavior: "smooth" });
+    setTimeout(() => input.focus(), 600);
   };
 
   return (

@@ -25,9 +25,7 @@ const PERIMETER = [
 ];
 
 const STANDARDS = [
-  { code: "FZ-152",      desc: "Personal Data" },
-  { code: "FZ-187",      desc: "CII Security" },
-  { code: "GOST 57580",  desc: "Financial Sector" },
+  // FZ-152, FZ-187, GOST 57580 are Russian-specific — not shown in EN version
   { code: "ISO 27001",   desc: "ISMS" },
   { code: "SOC 2",       desc: "Type II" },
   { code: "OWASP ASVS",  desc: "Level 2" },

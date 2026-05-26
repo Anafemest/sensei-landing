@@ -27,11 +27,15 @@ function CustomTaskCard() {
     const value = e.target.value;
     setTask(value);
     localStorage.setItem("sensei_custom_task_en", value);
+    window.dispatchEvent(new CustomEvent("sensei-task-change-en", { detail: value }));
   };
 
   const handleSubmit = () => {
-    const form = document.getElementById("form");
-    if (form) form.scrollIntoView({ behavior: "smooth" });
+    const input = document.querySelector("#form .form-panel input[type='text']");
+    if (!input) return;
+    const top = input.getBoundingClientRect().top + window.scrollY - 100;
+    window.scrollTo({ top, behavior: "smooth" });
+    setTimeout(() => input.focus(), 600);
   };
 
   return (

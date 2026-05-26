@@ -1,20 +1,119 @@
 // CTA + Footer — English version.
 
-function CTA() {
-  const [sent, setSent] = React.useState(false);
-  const [phone, setPhone] = React.useState("");
+const WEBHOOK_URL = "https://robot.icerock.dev/webhook/73704b14-4228-46b7-93ce-94317856a02b";
 
-  // Simple international phone formatter
+// International phone formatter — E.164, max 15 digits.
+//
+// +1  (NANP)          → +1 (XXX) XXX-XXXX          [11 digits]
+// +7  (Russia / KZ)   → +7 (XXX) XXX-XX-XX          [11 digits]
+// +XX / +XXX (all EU) → +XXX XXX XXX [XXX[X]]       [10–13 digits]
+//   last group is whatever digits remain (1–4), so both
+//   12-digit (+44 … 10 local) and 13-digit (+351 … 9 local) numbers
+//   format cleanly without truncation.
+function formatIntlPhone(digits) {
+  if (!digits) return "";
+  const d = digits.slice(0, 15); // E.164 hard cap
+
+  if (d[0] === "1") {
+    // NANP: +1 (NXX) NXX-XXXX  — last group is 4 digits
+    let f = "+1";
+    if (d.length > 1) f += " (" + d.slice(1, 4);
+    if (d.length >= 5) f += ") " + d.slice(4, 7);
+    if (d.length >= 8) f += "-" + d.slice(7, 11); // 4-digit last group
+    return f;
+  }
+
+  if (d[0] === "7") {
+    // Russia / KZ: +7 (XXX) XXX-XX-XX
+    let f = "+7";
+    if (d.length > 1) f += " (" + d.slice(1, 4);
+    if (d.length >= 5) f += ") " + d.slice(4, 7);
+    if (d.length >= 8) f += "-" + d.slice(7, 9);
+    if (d.length >= 10) f += "-" + d.slice(9, 11);
+    return f;
+  }
+
+  // Everything else: CC is 2–3 digits; group the rest as 3-3-3-[1…4].
+  // We don't know where CC ends, so we take first 3 chars as CC area
+  // and split remaining digits in groups of 3 (last group 1–4).
+  // Examples:
+  //   +44  2079460958  (12 dig) → +442 079 460 958
+  //   +351 912345678   (12 dig) → +351 912 345 678
+  //   +49  15112345678 (13 dig) → +491 511 234 5678
+  let f = "+" + d.slice(0, 3);
+  if (d.length >  3) f += " " + d.slice(3, 6);
+  if (d.length >  6) f += " " + d.slice(6, 9);
+  if (d.length >  9) f += " " + d.slice(9);   // all remaining (1–6 chars)
+  return f;
+}
+
+function CTA() {
+  const [sent, setSent]       = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+  const [errored, setErrored] = React.useState(false);
+  const [name, setName]       = React.useState("");
+  const [email, setEmail]     = React.useState("");
+  const [task, setTask]       = React.useState("");
+  const [phone, setPhone]     = React.useState("");
+
+  // Pre-fill task from block 05 (CustomTaskCard) via localStorage + custom event.
+  React.useEffect(() => {
+    const saved = localStorage.getItem("sensei_custom_task_en");
+    if (saved) setTask(saved);
+    const onTaskChange = (e) => setTask(e.detail);
+    window.addEventListener("sensei-task-change-en", onTaskChange);
+    return () => window.removeEventListener("sensei-task-change-en", onTaskChange);
+  }, []);
+
   const handlePhoneChange = (e) => {
-    let value = e.target.value;
-    const digits = value.replace(/\D/g, "");
-    if (!digits) { setPhone(""); return; }
-    let formatted = "+" + digits;
-    if (digits.length > 1)  formatted = "+" + digits.slice(0, 1) + " (" + digits.slice(1, 4);
-    if (digits.length >= 5) formatted += ") " + digits.slice(4, 7);
-    if (digits.length >= 8) formatted += "-" + digits.slice(7, 9);
-    if (digits.length >= 10) formatted += "-" + digits.slice(9, 11);
-    setPhone(formatted);
+    const digits = e.target.value.replace(/\D/g, "");
+    setPhone(formatIntlPhone(digits));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrored(false);
+
+    const now = new Date().toISOString();
+    const payload = {
+      form: { name, email, phone, task: task || "" },
+      page: {
+        url:       window.location.href,
+        pathname:  window.location.pathname,
+        title:     document.title,
+        timestamp: now,
+      },
+      referrer: {
+        value:    document.referrer || "",
+        hostname: (() => {
+          try { return document.referrer ? new URL(document.referrer).hostname : ""; }
+          catch { return ""; }
+        })(),
+      },
+      technical: {
+        submittedAt: now,
+        timezone:    Intl.DateTimeFormat().resolvedOptions().timeZone,
+        userAgent:   navigator.userAgent,
+        language:    navigator.language,
+        screen:   { width: screen.width,      height: screen.height },
+        viewport: { width: window.innerWidth, height: window.innerHeight },
+      },
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(payload),
+      });
+      if (res.ok) { setSent(true); }
+      else        { setErrored(true); }
+    } catch {
+      setErrored(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -43,25 +142,37 @@ function CTA() {
 
             <div className="form-panel">
               <div className={`form-panel__success${sent ? " show" : ""}`}>
-                <b>Thank you!</b> Your request has been received, we'll contact you shortly.
+                <b>Thank you!</b> Your request has been received — we'll be in touch shortly.
               </div>
-              <form onSubmit={(e) => { e.preventDefault(); setSent(true); }}>
+              <form onSubmit={handleSubmit}>
                 <label><span>Name</span>
-                  <input required type="text" placeholder="What's your name?" /></label>
+                  <input required type="text" placeholder="What's your name?"
+                    value={name} onChange={e => setName(e.target.value)} /></label>
                 <label><span>Email</span>
-                  <input required type="email" placeholder="work@company.com" /></label>
+                  <input required type="email" placeholder="work@company.com"
+                    value={email} onChange={e => setEmail(e.target.value)} /></label>
                 <label><span>Phone</span>
-                  <input
-                    required type="tel"
-                    placeholder="+1 (___) ___-____"
-                    value={phone}
-                    onChange={handlePhoneChange}
-                  /></label>
+                  <input required type="tel" placeholder="+___ ___ ___ ____"
+                    value={phone} onChange={handlePhoneChange} /></label>
+                <label>
+                  <span>Your task <em style={{ fontStyle:"normal", opacity:.55, fontWeight:400 }}>— optional</em></span>
+                  <textarea
+                    placeholder="Describe the process you want to automate"
+                    rows={3}
+                    value={task}
+                    onChange={e => setTask(e.target.value)}
+                  />
+                </label>
                 <p className="form-panel__promise">
                   We'll call within an hour and prepare a scenario for your process.
                 </p>
-                <button className="form-panel__submit" type="submit">
-                  Submit Request
+                {errored && (
+                  <p style={{ color:"#e05", fontSize:"13px", margin:"-4px 0 8px" }}>
+                    Could not send your request. Please try again or email us directly.
+                  </p>
+                )}
+                <button className="form-panel__submit" type="submit" disabled={loading}>
+                  {loading ? "Sending…" : "Submit Request"}
                 </button>
                 <p className="form-panel__fineprint">
                   By submitting the form, you agree to our{" "}

@@ -1,23 +1,15 @@
 // Anatomy section — English version.
 
-function PaperPlane() {
-  return (
-    <svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
-      <path d="M21 3 2 11l7 2 2 7 4-5 5 4 1-16Z" fill="#fff" />
-    </svg>
-  );
-}
-
 function Anatomy() {
   const nodes = [
     { label: "CRM",      ratio: 0.46, angle: 200 },
     { label: "OSS/BSS",  ratio: 0.46, angle:  20 },
     { label: "NMS",      ratio: 0.46, angle: 290 },
     { label: "NetBox",   ratio: 0.46, angle: 110 },
-    { label: "Jira",     ratio: 0.78, angle:  65, brand: { bg: "#2684FF", fg: "#fff", glyph: "J" } },
-    { label: "Telegram", ratio: 0.78, angle: 155, brand: { bg: "#26A5E4", fg: "#fff", glyph: <PaperPlane /> } },
-    { label: "Trello",   ratio: 0.78, angle: 245, brand: { bg: "#0052CC", fg: "#fff", glyph: "T" } },
-    { label: "Miro",     ratio: 0.78, angle: 335, brand: { bg: "#FFD02F", fg: "#050038", glyph: "M" } },
+    { label: "Jira",     ratio: 0.78, angle:  65, brand: { bg: "#fff", logo: "../assets/logos/jira.svg" } },
+    { label: "Telegram", ratio: 0.78, angle: 155, brand: { bg: "#fff", logo: "../assets/logos/telegram.svg" } },
+    { label: "Trello",   ratio: 0.78, angle: 245, brand: { bg: "#fff", logo: "../assets/logos/trello.svg" } },
+    { label: "Miro",     ratio: 0.78, angle: 335, brand: { bg: "#fff", logo: "../assets/logos/miro.svg" } },
   ];
 
   const center = 360;
@@ -56,8 +48,9 @@ function Anatomy() {
                     <div key={label} className={`anatomy__node${brand ? " anatomy__node--brand" : ""}`}
                          style={{ left: `calc(50% + ${x}px)`, top: `calc(50% + ${y}px)` }}>
                       {brand && (
-                        <span className="anatomy__node-icon" style={{ background: brand.bg, color: brand.fg }}>
-                          {brand.glyph}
+                        <span className="anatomy__node-icon" style={{ background: brand.bg }}>
+                          <img src={brand.logo} alt={label} width="18" height="18"
+                               style={{ display: "block", objectFit: "contain" }} />
                         </span>
                       )}
                       <span className="anatomy__node-label">{label}</span>

@@ -11,7 +11,7 @@ function Nav() {
       let current = "";
       for (const section of sections) {
         const el = document.getElementById(section);
-        if (el && el.getBoundingClientRect().top <= 100) current = section;
+        if (el && el.getBoundingClientRect().top <= 140) current = section;
       }
       if (current === "form") current = "";
       setActiveSection(current);
@@ -36,6 +36,19 @@ function Nav() {
   }, [menuOpen]);
 
   const close = () => setMenuOpen(false);
+
+  // Scroll to the form panel and focus the first input ("Имя")
+  const scrollToForm = (e) => {
+    e.preventDefault();
+    close();
+    setTimeout(() => {
+      const input = document.querySelector('#form .form-panel input');
+      if (!input) return;
+      const top = input.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top, behavior: 'smooth' });
+      setTimeout(() => input.focus(), 600);
+    }, 150);
+  };
 
   const links = [
     ["Решения",       "#xforms"],
@@ -65,7 +78,7 @@ function Nav() {
         <a href="tel:+79139072017" className="nav__contact-icon" title="Позвонить"><IPhone size={20} /></a>
         <a href="mailto:hello@sensei.works" className="nav__contact-icon" title="Написать письмо"><IMail size={20} /></a>
       </div>
-      <a className="nav__cta" href="#form">Записаться на демо <IArrow size={14} /></a>
+      <a className="nav__cta" href="#form" onClick={scrollToForm}>Записаться на демо <IArrow size={14} /></a>
 
       {/* Mobile: hamburger button */}
       <button
@@ -103,7 +116,7 @@ function Nav() {
               <IMail size={20} />
             </a>
           </div>
-          <a className="nav__drawer-cta" href="#form" onClick={close}>
+          <a className="nav__drawer-cta" href="#form" onClick={scrollToForm}>
             Записаться на демо <IArrow size={14} />
           </a>
         </div>

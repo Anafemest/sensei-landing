@@ -1,11 +1,10 @@
 // Logos marquee — English version.
 
 const LOGOS = [
-  { name: "LUBNET",   src: "https://www.lubnet.ru/icons/logo3.svg",   href: "https://www.lubnet.ru/" },
-  { name: "ESK",      src: "../assets/logos/esk.svg",                 href: "https://esknet.net/" },
-  { name: "SevenSky", src: "../assets/logos/sevensky.svg",            href: "https://www.seven-sky.net/" },
-  { name: "FORMULA",  src: "https://formula-smart.ru/wp-content/themes/formula/images/formula-logo.svg",
-    href: "https://formula-smart.ru/" },
+  { name: "Eurion",  src: "../assets/logos/Eurion.svg",  href: "#" },
+  { name: "TLV",     src: "../assets/logos/tlv.svg",     href: "#" },
+  { name: "EuLink",  src: "../assets/logos/EuLink.svg",  href: "#" },
+  { name: "Televo",  src: "../assets/logos/Televo.svg",  href: "#" },
 ];
 
 function LogoItem({ logo }) {

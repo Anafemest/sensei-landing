@@ -585,6 +585,18 @@ a { color: inherit; text-decoration: none; }
 
 /* ── Section frame ──────────────────────────────────────────── */
 
+/* Compensate for sticky nav (top:14px + height:64px → bottom at 78px)
+   when jumping to anchor links. 90px = nav bottom + 12px breathing. */
+#xforms, #what-is, #tracks, #how-it-works,
+#case-studies, #team, #testimonials, #form {
+  scroll-margin-top: 90px;
+}
+/* #faq is a plain div (no section padding-top), so needs extra offset
+   to match the visual heading distance of adjacent .section blocks. */
+#faq {
+  scroll-margin-top: 130px;
+}
+
 .section {
   position: relative; z-index: 1;
   padding: 72px 0 0;
@@ -2453,7 +2465,8 @@ body.modal-open {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(106, 53, 244, 0.12);
 }
-.form-panel textarea { resize: vertical; min-height: 80px; }
+.form-panel textarea { resize: none; min-height: 80px; }
+.form-panel__submit:disabled { opacity: 0.65; cursor: not-allowed; transform: none; box-shadow: none; }
 .form-panel__submit {
   width: 100%; margin-top: 6px;
   padding: 14px; border: 0;
@@ -2824,6 +2837,49 @@ body.modal-open {
   .anatomy__orbit--inner .anatomy__node { animation-name: anatomy-node-ccw-sm; }
   .anatomy__orbit--outer .anatomy__node { animation-name: anatomy-node-cw-sm; }
   .footer__grid { grid-template-columns: 1fr; }
+
+  /* ── Case modal: full-screen, one unified scroll ── */
+  .case-modal { padding: 0; display: block; }
+  .case-modal__sheet {
+    width: 100%; height: 100vh;
+    max-height: 100vh;
+    border-radius: 0; border: none; box-shadow: none;
+  }
+  /* Body becomes the single scroll container */
+  .case-modal__body {
+    display: flex; flex-direction: column;
+    overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Left sidebar: no own scroll, no border */
+  .case-modal__left {
+    overflow-y: visible;
+    flex-shrink: 0;
+    padding: 20px 20px 24px;
+    border-bottom: 1px solid var(--border);
+  }
+  /* Right panel: no own scroll, no max-height cap */
+  .case-modal__right {
+    max-height: none;
+    overflow: visible;
+    flex-shrink: 0;
+  }
+  .case-modal__right-scroll {
+    overflow-y: visible;
+    height: auto;
+    padding: 20px 20px 48px;
+  }
+  /* Custom scrollbar not needed on touch */
+  .case-modal__scroll-track { display: none; }
+
+  /* Metrics: vertical list rows instead of grid cards */
+  .case-results { grid-template-columns: 1fr; gap: 8px; }
+  .case-metric {
+    flex-direction: row; align-items: center;
+    gap: 14px; padding: 14px 16px;
+  }
+  .case-metric__value { font-size: 1.25rem; min-width: 96px; flex-shrink: 0; }
+  .case-metric__label { font-size: 0.88rem; }
 }
 
 @keyframes anatomy-node-cw-sm {
