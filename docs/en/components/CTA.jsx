@@ -109,7 +109,7 @@ function CTA() {
     const ymClientId = await getYMClientId();
     const now = new Date().toISOString();
     const payload = {
-      source: "sensei-landing-en",
+      source: "sensei-landing",
       form: {
         id:   "en-lead-form",
         name: "",
