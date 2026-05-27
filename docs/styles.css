@@ -6,7 +6,7 @@
 
 @import url("./colors_and_type.css");
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body { margin: 0; max-width: 100%; overflow-x: clip; scroll-behavior: smooth; }
 body {
   font-family: var(--font-sans);
@@ -918,7 +918,7 @@ a { color: inherit; text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: 10px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1.5;
   color: var(--ink);
   resize: vertical;
@@ -1231,6 +1231,12 @@ a { color: inherit; text-decoration: none; }
   border-color: rgba(106, 53, 244, 0.32);
   box-shadow: 0 22px 52px rgba(106, 53, 244, 0.16);
   outline: none;
+}
+.case-card:active {
+  transform: scale(0.974);
+  border-color: rgba(106, 53, 244, 0.45);
+  box-shadow: 0 6px 20px rgba(106, 53, 244, 0.18);
+  transition: transform 0.08s ease, border-color 0.08s ease, box-shadow 0.08s ease;
 }
 .case-card:hover .case-card__bignum,
 .case-card:focus-visible .case-card__bignum {
@@ -2092,6 +2098,7 @@ body.modal-open {
 }
 .faq__q::-webkit-details-marker { display: none; }
 .faq:hover .faq__q { background: rgba(106, 53, 244, 0.025); }
+.faq__q:active     { background: rgba(106, 53, 244, 0.07); transition: background 0.08s ease; }
 .faq__chev {
   flex-shrink: 0;
   width: 24px; height: 24px;
@@ -2285,7 +2292,7 @@ body.modal-open {
   display: flex;
   flex-wrap: nowrap;
   gap: 18px;
-  overflow-x: auto;
+  overflow-x: scroll;           /* 'auto' + touch-action:pan-y breaks scrollLeft on iOS Safari */
   overflow-y: clip;             /* unlike hidden, allows overflow-clip-margin */
   overflow-clip-margin: 64px;   /* lets hover shadows breathe beyond the padding edge */
   scrollbar-width: none;
@@ -2457,7 +2464,7 @@ body.modal-open {
   border-radius: 12px;
   background: var(--bg); color: var(--ink);
   padding: 12px 14px;
-  font-family: var(--font-sans); font-size: 14px;
+  font-family: var(--font-sans); font-size: 16px;
   outline: none; transition: all .25s;
 }
 .form-panel input:focus,

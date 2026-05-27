@@ -3,7 +3,7 @@
 const QUOTES = [
   {
     text: "Network fault diagnostics that used to occupy our NOC team for days now resolve in under 15 minutes. Sensei sits entirely within our infrastructure — our compliance team signed off without a single objection.",
-    photo: "https://i.pravatar.cc/240?u=markus-brenner-tlv",
+    photo: "https://randomuser.me/api/portraits/men/33.jpg",
     initials: "MB",
     name: "Markus Brenner",
     role: "VP of Network Operations",
@@ -11,7 +11,7 @@ const QUOTES = [
   },
   {
     text: "We went from pilot to production in four weeks. Call-centre ticket volume dropped by 40% in the first month — Sensei handles routine subscriber queries before they even reach an agent.",
-    photo: "https://i.pravatar.cc/240?u=sophie-leclercq-eulink",
+    photo: "https://randomuser.me/api/portraits/women/44.jpg",
     initials: "SL",
     name: "Sophie Leclercq",
     role: "Head of Customer Experience",
@@ -19,7 +19,7 @@ const QUOTES = [
   },
   {
     text: "OSS/BSS integration was smoother than any vendor tool we have deployed in the past five years. Incident correlation across three systems now happens automatically — engineers get a clear action plan, not raw logs.",
-    photo: "https://i.pravatar.cc/240?u=rafael-costa-televo",
+    photo: "https://randomuser.me/api/portraits/men/61.jpg",
     initials: "RC",
     name: "Rafael Costa",
     role: "Director of Technology",
@@ -27,7 +27,7 @@ const QUOTES = [
   },
   {
     text: "The on-premise deployment model was the deciding factor for us. Data sovereignty is non-negotiable in our region, and Sensei delivered exactly that — no external API calls, no telemetry leaving our perimeter.",
-    photo: "https://i.pravatar.cc/240?u=anna-eriksson-eurion",
+    photo: "https://randomuser.me/api/portraits/women/52.jpg",
     initials: "AE",
     name: "Anna Eriksson",
     role: "Chief Information Security Officer",
@@ -68,6 +68,8 @@ function Testimonials() {
   React.useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
+
+    // ── Auto-scroll loop (rAF) ──
     let raf, last = performance.now();
     const SPEED = 32;
     const tick = (now) => {
@@ -80,30 +82,80 @@ function Testimonials() {
     };
     raf = requestAnimationFrame(tick);
 
+    // ── Pause on hover (desktop) ──
     const onEnter = () => { state.current.paused = true; };
     const onLeave = () => { state.current.paused = false; };
-    const onDown  = (e) => { state.current.dragging = true; state.current.x0 = e.clientX; state.current.sl0 = el.scrollLeft; state.current.moved = 0; el.classList.add("quotes--dragging"); try { el.setPointerCapture(e.pointerId); } catch (_) {} };
-    const onMove  = (e) => { if (!state.current.dragging) return; const dx = e.clientX - state.current.x0; state.current.moved = Math.abs(dx); el.scrollLeft = state.current.sl0 - dx; };
-    const onUp    = (e) => { if (!state.current.dragging) return; state.current.dragging = false; el.classList.remove("quotes--dragging"); try { el.releasePointerCapture(e.pointerId); } catch (_) {} };
+
+    // ── Mouse / stylus drag (pointer events, touch handled separately) ──
+    const onDown = (e) => {
+      if (e.pointerType === "touch") return;
+      state.current.dragging = true; state.current.x0 = e.clientX;
+      state.current.sl0 = el.scrollLeft; state.current.moved = 0;
+      el.classList.add("quotes--dragging");
+      try { el.setPointerCapture(e.pointerId); } catch (_) {}
+    };
+    const onMove = (e) => {
+      if (e.pointerType === "touch") return;
+      if (!state.current.dragging) return;
+      const dx = e.clientX - state.current.x0;
+      state.current.moved = Math.abs(dx); el.scrollLeft = state.current.sl0 - dx;
+    };
+    const onUp = (e) => {
+      if (e.pointerType === "touch") return;
+      if (!state.current.dragging) return;
+      state.current.dragging = false; el.classList.remove("quotes--dragging");
+      try { el.releasePointerCapture(e.pointerId); } catch (_) {}
+    };
+
+    // ── Touch drag (iOS / Android) ──
+    let tx0 = 0, ty0 = 0, tsl0 = 0, tDir = null;
+    const onTouchStart = (e) => {
+      tx0 = e.touches[0].clientX; ty0 = e.touches[0].clientY;
+      tsl0 = el.scrollLeft; tDir = null;
+      state.current.moved = 0; state.current.paused = true;
+    };
+    const onTouchMove = (e) => {
+      const dx = e.touches[0].clientX - tx0;
+      const dy = e.touches[0].clientY - ty0;
+      if (tDir === null) tDir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      if (tDir === "h") {
+        e.preventDefault();
+        state.current.dragging = true;
+        state.current.moved = Math.abs(dx);
+        el.scrollLeft = tsl0 - dx;
+      }
+    };
+    const onTouchEnd = () => {
+      state.current.dragging = false; state.current.paused = false; tDir = null;
+    };
+
     const onClick = (e) => { if (state.current.moved > 5) { e.preventDefault(); e.stopPropagation(); } };
 
-    el.addEventListener("pointerenter", onEnter);
-    el.addEventListener("pointerleave", onLeave);
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointerenter",  onEnter);
+    el.addEventListener("pointerleave",  onLeave);
+    el.addEventListener("pointerdown",   onDown);
+    el.addEventListener("pointermove",   onMove);
+    el.addEventListener("pointerup",     onUp);
     el.addEventListener("pointercancel", onUp);
-    el.addEventListener("click", onClick, true);
+    el.addEventListener("touchstart",    onTouchStart, { passive: true });
+    el.addEventListener("touchmove",     onTouchMove,  { passive: false });
+    el.addEventListener("touchend",      onTouchEnd);
+    el.addEventListener("touchcancel",   onTouchEnd);
+    el.addEventListener("click",         onClick, true);
 
     return () => {
       cancelAnimationFrame(raf);
-      el.removeEventListener("pointerenter", onEnter);
-      el.removeEventListener("pointerleave", onLeave);
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointerenter",  onEnter);
+      el.removeEventListener("pointerleave",  onLeave);
+      el.removeEventListener("pointerdown",   onDown);
+      el.removeEventListener("pointermove",   onMove);
+      el.removeEventListener("pointerup",     onUp);
       el.removeEventListener("pointercancel", onUp);
-      el.removeEventListener("click", onClick, true);
+      el.removeEventListener("touchstart",    onTouchStart);
+      el.removeEventListener("touchmove",     onTouchMove);
+      el.removeEventListener("touchend",      onTouchEnd);
+      el.removeEventListener("touchcancel",   onTouchEnd);
+      el.removeEventListener("click",         onClick, true);
     };
   }, []);
 

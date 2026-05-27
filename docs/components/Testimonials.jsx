@@ -4,7 +4,7 @@
 const QUOTES = [
   {
     text: "Техпроверки, которые занимали у инженеров два-три дня, теперь закрываются за 10 минут. Sensei работает внутри нашего контура — вопросов к ИБ не возникло.",
-    photo: "https://i.pravatar.cc/240?u=anton-mironov-cto",
+    photo: "https://randomuser.me/api/portraits/men/42.jpg",
     initials: "АМ",
     name: "Антон Миронов",
     role: "Директор по технологиям",
@@ -12,7 +12,7 @@ const QUOTES = [
   },
   {
     text: "Пилот запустили за три недели. С первой недели — снижение нагрузки на операторов абонентского отдела. On-premise закрыл все вопросы безопасности.",
-    photo: "https://i.pravatar.cc/240?u=irina-zakharova-cx",
+    photo: "https://randomuser.me/api/portraits/women/31.jpg",
     initials: "ИЗ",
     name: "Ирина Захарова",
     role: "Руководитель CX-департамента",
@@ -20,7 +20,7 @@ const QUOTES = [
   },
   {
     text: "Интеграция с NMS прошла быстрее ожиданий. Инциденты L1 разбираются автоматически — инженеры получают готовый план, а не кипу данных для ручного анализа.",
-    photo: "https://i.pravatar.cc/240?u=sergey-tkachenko-noc",
+    photo: "https://randomuser.me/api/portraits/men/7.jpg",
     initials: "СТ",
     name: "Сергей Ткаченко",
     role: "Начальник службы эксплуатации",
@@ -28,7 +28,7 @@ const QUOTES = [
   },
   {
     text: "Сократили переключения между системами с 8 до 1. Один чат — результат готов. Экономим сотни человеко-часов в месяц на рутине.",
-    photo: "https://i.pravatar.cc/240?u=natalia-klimova-ops",
+    photo: "https://randomuser.me/api/portraits/women/58.jpg",
     initials: "НК",
     name: "Наталья Климова",
     role: "Операционный директор",
@@ -97,12 +97,13 @@ function Testimonials() {
     };
     raf = requestAnimationFrame(tick);
 
-    // ── Pause on hover ──
+    // ── Pause on hover (desktop) ──
     const onEnter = () => { state.current.paused = true; };
     const onLeave = () => { state.current.paused = false; };
 
-    // ── Click & drag to scroll ──
+    // ── Mouse / stylus drag (pointer events, touch handled separately) ──
     const onDown = (e) => {
+      if (e.pointerType === "touch") return;
       state.current.dragging = true;
       state.current.x0 = e.clientX;
       state.current.sl0 = el.scrollLeft;
@@ -111,39 +112,80 @@ function Testimonials() {
       try { el.setPointerCapture(e.pointerId); } catch (_) {}
     };
     const onMove = (e) => {
+      if (e.pointerType === "touch") return;
       if (!state.current.dragging) return;
       const dx = e.clientX - state.current.x0;
       state.current.moved = Math.abs(dx);
       el.scrollLeft = state.current.sl0 - dx;
     };
     const onUp = (e) => {
+      if (e.pointerType === "touch") return;
       if (!state.current.dragging) return;
       state.current.dragging = false;
       el.classList.remove("quotes--dragging");
       try { el.releasePointerCapture(e.pointerId); } catch (_) {}
     };
+
+    // ── Touch drag (iOS / Android) ──
+    // Uses native touch events so pointer-event quirks on iOS don't matter.
+    // touchmove is non-passive so we can preventDefault() on horizontal swipes
+    // and prevent the page from drifting sideways while the user scrolls cards.
+    let tx0 = 0, ty0 = 0, tsl0 = 0, tDir = null;
+    const onTouchStart = (e) => {
+      tx0  = e.touches[0].clientX;
+      ty0  = e.touches[0].clientY;
+      tsl0 = el.scrollLeft;
+      tDir = null;
+      state.current.moved  = 0;
+      state.current.paused = true;
+    };
+    const onTouchMove = (e) => {
+      const dx = e.touches[0].clientX - tx0;
+      const dy = e.touches[0].clientY - ty0;
+      if (tDir === null) tDir = Math.abs(dx) > Math.abs(dy) ? "h" : "v";
+      if (tDir === "h") {
+        e.preventDefault();                    // block page from scrolling sideways
+        state.current.dragging = true;
+        state.current.moved    = Math.abs(dx);
+        el.scrollLeft          = tsl0 - dx;
+      }
+    };
+    const onTouchEnd = () => {
+      state.current.dragging = false;
+      state.current.paused   = false;
+      tDir = null;
+    };
+
     // Cancel any link/click that fires as a side-effect of a drag.
     const onClickCapture = (e) => {
       if (state.current.moved > 5) { e.preventDefault(); e.stopPropagation(); }
     };
 
-    el.addEventListener("pointerenter", onEnter);
-    el.addEventListener("pointerleave", onLeave);
-    el.addEventListener("pointerdown", onDown);
-    el.addEventListener("pointermove", onMove);
-    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointerenter",  onEnter);
+    el.addEventListener("pointerleave",  onLeave);
+    el.addEventListener("pointerdown",   onDown);
+    el.addEventListener("pointermove",   onMove);
+    el.addEventListener("pointerup",     onUp);
     el.addEventListener("pointercancel", onUp);
-    el.addEventListener("click", onClickCapture, true);
+    el.addEventListener("touchstart",    onTouchStart, { passive: true });
+    el.addEventListener("touchmove",     onTouchMove,  { passive: false });
+    el.addEventListener("touchend",      onTouchEnd);
+    el.addEventListener("touchcancel",   onTouchEnd);
+    el.addEventListener("click",         onClickCapture, true);
 
     return () => {
       cancelAnimationFrame(raf);
-      el.removeEventListener("pointerenter", onEnter);
-      el.removeEventListener("pointerleave", onLeave);
-      el.removeEventListener("pointerdown", onDown);
-      el.removeEventListener("pointermove", onMove);
-      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointerenter",  onEnter);
+      el.removeEventListener("pointerleave",  onLeave);
+      el.removeEventListener("pointerdown",   onDown);
+      el.removeEventListener("pointermove",   onMove);
+      el.removeEventListener("pointerup",     onUp);
       el.removeEventListener("pointercancel", onUp);
-      el.removeEventListener("click", onClickCapture, true);
+      el.removeEventListener("touchstart",    onTouchStart);
+      el.removeEventListener("touchmove",     onTouchMove);
+      el.removeEventListener("touchend",      onTouchEnd);
+      el.removeEventListener("touchcancel",   onTouchEnd);
+      el.removeEventListener("click",         onClickCapture, true);
     };
   }, []);
 

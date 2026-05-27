@@ -2,6 +2,36 @@
 
 const WEBHOOK_URL = "https://robot.icerock.dev/webhook/73704b14-4228-46b7-93ce-94317856a02b";
 
+// Persistent fallback client ID (used when Yandex Metrica is unavailable).
+function getLocalClientId() {
+  const KEY = "sensei_client_id";
+  let id = localStorage.getItem(KEY);
+  if (!id) {
+    id = Date.now().toString() + Math.floor(Math.random() * 1e9).toString();
+    localStorage.setItem(KEY, id);
+  }
+  return id;
+}
+
+// Returns YM clientId if the counter is loaded, otherwise falls back to localStorage.
+function getYMClientId() {
+  return new Promise((resolve) => {
+    try {
+      if (typeof window.ym === "function") {
+        const timer = setTimeout(() => resolve(getLocalClientId()), 600);
+        window.ym(108165202, "getClientID", (id) => {
+          clearTimeout(timer);
+          resolve(id || getLocalClientId());
+        });
+      } else {
+        resolve(getLocalClientId());
+      }
+    } catch {
+      resolve(getLocalClientId());
+    }
+  });
+}
+
 // International phone formatter — E.164, max 15 digits.
 //
 // +1  (NANP)          → +1 (XXX) XXX-XXXX          [11 digits]
@@ -75,27 +105,51 @@ function CTA() {
     setLoading(true);
     setErrored(false);
 
+    // Payload mirrors the old-site structure so the existing n8n mappings work.
+    const ymClientId = await getYMClientId();
     const now = new Date().toISOString();
     const payload = {
-      form: { name, email, phone, task: task || "" },
-      page: {
-        url:       window.location.href,
-        pathname:  window.location.pathname,
-        title:     document.title,
-        timestamp: now,
+      source: "sensei-landing-en",
+      form: {
+        id:   "en-lead-form",
+        name: "",
+        fields: {
+          name:    name,
+          company: "",
+          role:    "",
+          email:   email,
+          phone:   phone.replace(/\D/g, ""),
+          usecase: task || "",
+        },
       },
-      referrer: {
-        value:    document.referrer || "",
-        hostname: (() => {
-          try { return document.referrer ? new URL(document.referrer).hostname : ""; }
-          catch { return ""; }
-        })(),
+      seo: {
+        page: {
+          title:     document.title,
+          url:       window.location.href,
+          pathname:  window.location.pathname,
+          search:    window.location.search,
+          hash:      window.location.hash,
+          hostname:  window.location.hostname,
+          language:  navigator.language,
+          canonical: window.location.origin + window.location.pathname,
+        },
+        referrer: {
+          value:    document.referrer || "",
+          hostname: (() => { try { return document.referrer ? new URL(document.referrer).hostname : ""; } catch { return ""; } })(),
+        },
+      },
+      analytics: {
+        yandexMetrica: {
+          counterId: "108165202",
+          clientId:  ymClientId,
+        },
       },
       technical: {
         submittedAt: now,
         timezone:    Intl.DateTimeFormat().resolvedOptions().timeZone,
         userAgent:   navigator.userAgent,
         language:    navigator.language,
+        languages:   Array.from(navigator.languages || [navigator.language]),
         screen:   { width: screen.width,      height: screen.height },
         viewport: { width: window.innerWidth, height: window.innerHeight },
       },
