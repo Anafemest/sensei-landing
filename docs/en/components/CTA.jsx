@@ -1,5 +1,38 @@
 // CTA + Footer — English version.
 
+function SuccessModal({ onClose }) {
+  React.useEffect(() => {
+    document.body.classList.add("modal-open");
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="success-modal" onClick={onClose}>
+      <div className="success-modal__card" onClick={e => e.stopPropagation()}>
+        <div className="success-modal__icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h3 className="success-modal__title">Request Received!</h3>
+        <p className="success-modal__sub">
+          We have your details and will reach out within an&nbsp;hour
+          to schedule your demonstration.
+        </p>
+        <button className="success-modal__btn" onClick={onClose}>
+          Got it, thanks!
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const WEBHOOK_URL = "https://robot.icerock.dev/webhook/73704b14-4228-46b7-93ce-94317856a02b";
 
 // Persistent fallback client ID (used when Yandex Metrica is unavailable).
@@ -86,6 +119,12 @@ function CTA() {
   const [task, setTask]       = React.useState("");
   const [phone, setPhone]     = React.useState("");
 
+  // Field refs — sequential focus on Enter + mobile auto-scroll.
+  const nameRef  = React.useRef(null);
+  const emailRef = React.useRef(null);
+  const phoneRef = React.useRef(null);
+  const taskRef  = React.useRef(null);
+
   // Pre-fill task from block 05 (CustomTaskCard) via localStorage + custom event.
   React.useEffect(() => {
     const saved = localStorage.getItem("sensei_custom_task_en");
@@ -94,6 +133,30 @@ function CTA() {
     window.addEventListener("sensei-task-change-en", onTaskChange);
     return () => window.removeEventListener("sensei-task-change-en", onTaskChange);
   }, []);
+
+  const scrollToField = (el) => {
+    if (!el || !navigator.maxTouchPoints) return;
+    const doScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const vvH  = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const top  = window.scrollY + rect.top + rect.height / 2 - vvH * 0.38;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    };
+    if (window.visualViewport) {
+      let done = false;
+      const onKb = () => { if (done) return; done = true; window.visualViewport.removeEventListener('resize', onKb); doScroll(); };
+      window.visualViewport.addEventListener('resize', onKb);
+      setTimeout(() => { if (done) return; done = true; window.visualViewport.removeEventListener('resize', onKb); doScroll(); }, 120);
+    } else {
+      setTimeout(doScroll, 300);
+    }
+  };
+
+  const goNext = (ref) => (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (ref && ref.current) ref.current.focus();
+  };
 
   const handlePhoneChange = (e) => {
     const digits = e.target.value.replace(/\D/g, "");
@@ -195,26 +258,33 @@ function CTA() {
             </div>
 
             <div className="form-panel">
-              <div className={`form-panel__success${sent ? " show" : ""}`}>
-                <b>Thank you!</b> Your request has been received — we'll be in touch shortly.
-              </div>
+              {sent && <SuccessModal onClose={() => setSent(false)} />}
               <form onSubmit={handleSubmit}>
                 <label><span>Name</span>
-                  <input required type="text" placeholder="What's your name?"
-                    value={name} onChange={e => setName(e.target.value)} /></label>
+                  <input ref={nameRef} required type="text" placeholder="What's your name?"
+                    value={name} onChange={e => setName(e.target.value)}
+                    enterKeyHint="next" onKeyDown={goNext(emailRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label><span>Email</span>
-                  <input required type="email" placeholder="work@company.com"
-                    value={email} onChange={e => setEmail(e.target.value)} /></label>
+                  <input ref={emailRef} required type="email" placeholder="work@company.com"
+                    value={email} onChange={e => setEmail(e.target.value)}
+                    enterKeyHint="next" onKeyDown={goNext(phoneRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label><span>Phone</span>
-                  <input required type="tel" placeholder="+___ ___ ___ ____"
-                    value={phone} onChange={handlePhoneChange} /></label>
+                  <input ref={phoneRef} required type="tel" placeholder="+___ ___ ___ ____"
+                    value={phone} onChange={handlePhoneChange}
+                    enterKeyHint="next" onKeyDown={goNext(taskRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label>
                   <span>Your task <em style={{ fontStyle:"normal", opacity:.55, fontWeight:400 }}>— optional</em></span>
                   <textarea
+                    ref={taskRef}
                     placeholder="Describe the process you want to automate"
                     rows={3}
                     value={task}
                     onChange={e => setTask(e.target.value)}
+                    enterKeyHint="done"
+                    onFocus={e => scrollToField(e.currentTarget)}
                   />
                 </label>
                 <p className="form-panel__promise">

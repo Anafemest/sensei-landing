@@ -16,7 +16,14 @@ function Hero() {
             ready results. Data never leaves your perimeter.
           </p>
           <div className="hero__actions">
-            <a className="btn btn--primary" href="#form">
+            <a className="btn btn--primary" href="#form"
+               onClick={e => {
+                 e.preventDefault();
+                 const input = document.querySelector('#form .form-panel input[type="text"]');
+                 if (!input) return;
+                 window.scrollTo({ top: input.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+                 setTimeout(() => input.focus(), 600);
+               }}>
               Request a Demo <IArrow size={16} />
             </a>
           </div>

@@ -1,22 +1,22 @@
 // Logos marquee — English version.
 
 const LOGOS = [
-  { name: "Eurion",  src: "../assets/logos/Eurion.svg",  href: "#" },
-  { name: "TLV",     src: "../assets/logos/tlv.svg",     href: "#" },
-  { name: "EuLink",  src: "../assets/logos/EuLink.svg",  href: "#" },
-  { name: "Televo",  src: "../assets/logos/Televo.svg",  href: "#" },
+  { name: "Eurion",  src: "../assets/logos/Eurion.svg" },
+  { name: "TLV",     src: "../assets/logos/tlv.svg"    },
+  { name: "EuLink",  src: "../assets/logos/EuLink.svg" },
+  { name: "Televo",  src: "../assets/logos/Televo.svg" },
 ];
 
 function LogoItem({ logo }) {
   return (
-    <a className="logo" href={logo.href} target="_blank" rel="noopener noreferrer" aria-label={logo.name}>
+    <div className="logo" aria-label={logo.name}>
       <img src={logo.src} alt={logo.name} loading="lazy"
         onError={(e) => {
-          const a = e.currentTarget.parentElement;
-          if (a) { a.classList.add("logo--fallback"); a.textContent = logo.name; }
+          const div = e.currentTarget.parentElement;
+          if (div) { div.classList.add("logo--fallback"); div.textContent = logo.name; }
         }}
       />
-    </a>
+    </div>
   );
 }
 

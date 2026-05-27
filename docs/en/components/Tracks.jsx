@@ -31,7 +31,14 @@ function Tracks() {
           ))}
         </ul>
         <div className="tracks-cta">
-          <a href="#form" className="tracks-cta__btn">Discuss the Project</a>
+          <a href="#form" className="tracks-cta__btn"
+             onClick={e => {
+               e.preventDefault();
+               const input = document.querySelector('#form .form-panel input[type="text"]');
+               if (!input) return;
+               window.scrollTo({ top: input.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+               setTimeout(() => input.focus(), 600);
+             }}>Discuss the Project</a>
         </div>
       </div>
     </section>

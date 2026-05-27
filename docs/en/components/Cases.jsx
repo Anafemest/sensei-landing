@@ -291,9 +291,11 @@ function CaseModal({ caseData, onClose }) {
                 onClick={() => {
                   onClose();
                   setTimeout(() => {
-                    const form = document.getElementById("form");
-                    if (form) form.scrollIntoView({ behavior: "smooth" });
-                  }, 180);
+                    const input = document.querySelector('#form .form-panel input[type="text"]');
+                    if (!input) return;
+                    window.scrollTo({ top: input.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+                    setTimeout(() => input.focus(), 600);
+                  }, 300);
                 }}
               >
                 Request a Demo

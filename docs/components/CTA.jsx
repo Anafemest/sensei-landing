@@ -1,5 +1,38 @@
 // Final CTA + lead form block.
 
+function SuccessModal({ onClose }) {
+  React.useEffect(() => {
+    document.body.classList.add("modal-open");
+    const onKey = (e) => { if (e.key === "Escape") onClose(); };
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.classList.remove("modal-open");
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
+  return (
+    <div className="success-modal" onClick={onClose}>
+      <div className="success-modal__card" onClick={e => e.stopPropagation()}>
+        <div className="success-modal__icon">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.5"
+                  strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
+        <h3 className="success-modal__title">Заявка отправлена!</h3>
+        <p className="success-modal__sub">
+          Мы получили ваши данные и свяжемся с вами в&nbsp;течение часа,
+          чтобы согласовать демонстрацию.
+        </p>
+        <button className="success-modal__btn" onClick={onClose}>
+          Отлично, спасибо!
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const WEBHOOK_URL = "https://robot.icerock.dev/webhook/73704b14-4228-46b7-93ce-94317856a02b";
 
 // Persistent fallback client ID (used when Yandex Metrica is unavailable).
@@ -41,6 +74,12 @@ function CTA() {
   const [task, setTask]       = React.useState("");
   const [phone, setPhone]     = React.useState("");
 
+  // Field refs — sequential focus on Enter + mobile auto-scroll.
+  const nameRef  = React.useRef(null);
+  const emailRef = React.useRef(null);
+  const phoneRef = React.useRef(null);
+  const taskRef  = React.useRef(null);
+
   // Pre-fill task from block 05 (CustomTaskCard) — via localStorage on mount
   // and via custom event for real-time sync while user is still on the page.
   React.useEffect(() => {
@@ -51,6 +90,35 @@ function CTA() {
     window.addEventListener("sensei-task-change", onTaskChange);
     return () => window.removeEventListener("sensei-task-change", onTaskChange);
   }, []);
+
+  // Scroll the focused field to ~38% from top of the visible viewport.
+  // Uses visualViewport to account for the iOS keyboard.
+  // On desktop (no touch) — no-op.
+  const scrollToField = (el) => {
+    if (!el || !navigator.maxTouchPoints) return;
+    const doScroll = () => {
+      const rect = el.getBoundingClientRect();
+      const vvH  = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      const top  = window.scrollY + rect.top + rect.height / 2 - vvH * 0.38;
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    };
+    if (window.visualViewport) {
+      let done = false;
+      const onKb = () => { if (done) return; done = true; window.visualViewport.removeEventListener('resize', onKb); doScroll(); };
+      window.visualViewport.addEventListener('resize', onKb);
+      // Keyboard already open (focus moves between fields) — resize won't fire.
+      setTimeout(() => { if (done) return; done = true; window.visualViewport.removeEventListener('resize', onKb); doScroll(); }, 120);
+    } else {
+      setTimeout(doScroll, 300);
+    }
+  };
+
+  // Press Enter in a field → focus the next one (triggers its onFocus scroll).
+  const goNext = (ref) => (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    if (ref && ref.current) ref.current.focus();
+  };
 
   const handlePhoneChange = (e) => {
     const digitsOnly = e.target.value.replace(/\D/g, '');
@@ -165,25 +233,32 @@ function CTA() {
             </div>
 
             <div className="form-panel">
-              <div className={`form-panel__success${sent ? " show" : ""}`}>
-                <b>Спасибо!</b> Заявка получена, свяжемся с вами в ближайшее время.
-              </div>
+              {sent && <SuccessModal onClose={() => setSent(false)} />}
               <form onSubmit={handleSubmit}>
                 <label><span>Имя</span>
-                  <input required type="text" placeholder="Как вас зовут?"
-                    value={name} onChange={e => setName(e.target.value)} /></label>
+                  <input ref={nameRef} required type="text" placeholder="Как вас зовут?"
+                    value={name} onChange={e => setName(e.target.value)}
+                    enterKeyHint="next" onKeyDown={goNext(emailRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label><span>Email</span>
-                  <input required type="email" placeholder="work@company.com"
-                    value={email} onChange={e => setEmail(e.target.value)} /></label>
+                  <input ref={emailRef} required type="email" placeholder="work@company.com"
+                    value={email} onChange={e => setEmail(e.target.value)}
+                    enterKeyHint="next" onKeyDown={goNext(phoneRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label><span>Телефон</span>
-                  <input required type="tel" placeholder="+7 (___) ___-__-__"
-                    value={phone} onChange={handlePhoneChange} /></label>
+                  <input ref={phoneRef} required type="tel" placeholder="+7 (___) ___-__-__"
+                    value={phone} onChange={handlePhoneChange}
+                    enterKeyHint="next" onKeyDown={goNext(taskRef)}
+                    onFocus={e => scrollToField(e.currentTarget)} /></label>
                 <label><span>Ваша задача <em style={{fontStyle:"normal",opacity:.55,fontWeight:400}}>— необязательно</em></span>
                   <textarea
+                    ref={taskRef}
                     placeholder="Опишите процесс, который хотите автоматизировать"
                     rows={3}
                     value={task}
                     onChange={e => setTask(e.target.value)}
+                    enterKeyHint="done"
+                    onFocus={e => scrollToField(e.currentTarget)}
                   /></label>
                 <p className="form-panel__promise">
                   Позвоним в течение часа, подготовим сценарий под ваш процесс.

@@ -215,8 +215,10 @@ function Flow() {
               <button
                 className="faq-cta__btn"
                 onClick={() => {
-                  const form = document.getElementById("form");
-                  if (form) form.scrollIntoView({ behavior: "smooth" });
+                  const input = document.querySelector('#form .form-panel input[type="text"]');
+                  if (!input) return;
+                  window.scrollTo({ top: input.getBoundingClientRect().top + window.scrollY - 100, behavior: 'smooth' });
+                  setTimeout(() => input.focus(), 600);
                 }}
               >
                 Schedule a Demo →
