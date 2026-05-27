@@ -2,13 +2,13 @@
 // three identical sets translated by exactly -100%/3.
 
 const LOGOS = [
-  { name: "LUBNET",   src: "https://www.lubnet.ru/icons/logo3.svg",
+  { name: "LUBNET",   src: "assets/logos/Lubnet.svg",
     href: "https://www.lubnet.ru/" },
   { name: "ЕСК",      src: "assets/logos/esk.svg",
     href: "https://esknet.net/" },
   { name: "SevenSky", src: "assets/logos/sevensky.svg",
     href: "https://www.seven-sky.net/" },
-  { name: "FORMULA",  src: "https://formula-smart.ru/wp-content/themes/formula/images/formula-logo.svg",
+  { name: "FORMULA",  src: "assets/logos/formula.svg",
     href: "https://formula-smart.ru/" },
 ];
 

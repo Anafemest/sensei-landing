@@ -1,0 +1,17 @@
+# Sensei Landing — static site, no build step needed.
+# GitLab Pages requires files to be in the `public/` directory.
+# We copy everything from the repo root into public/.
+
+image: alpine:latest
+
+pages:
+  stage: deploy
+  script:
+    - apk add --no-cache rsync
+    - mkdir -p public
+    - rsync -a --exclude='public' --exclude='.git' --exclude='.gitlab-ci.yml' . public/
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
